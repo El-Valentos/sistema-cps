@@ -1,0 +1,1 @@
+                'a_la_orden_de' => $request->a_la_orden_de ?: trim($ordenPago->beneficiario_nombre . ' ' . $ordenPago->beneficiario_apellidos),

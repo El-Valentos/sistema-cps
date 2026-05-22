@@ -1,0 +1,85 @@
+INFORME FINAL: Error categoria_gasto_id y Roles - cps-pagos-sistema
+=============================================================
+
+1. DIAGNÓSTICO INICIAL
+------------------------
+Error: SQLSTATE[22007]: Incorrect integer value: 'incapacidad_temporal' for column categoria_gasto_id
+
+Causa raíz: El formulario Blade enviaba strings en lugar de enteros (IDs).
+
+2. CAMBIOS REALIZADOS
+--------------------
+
+A. SOLUCIÓN ERROR CATEGORÍA_GASTO_ID (Usar IDs enteros)
+
+1. OrdenPagoController.php
+   - create(): Agregado $categorias = CategoriaGasto::where('activo', true)->get();
+   - create(): Agregado $liquidadores (usuarios con área TES o FIN)
+   - edit(): Agregado $categorias y $liquidadores
+   - edit(): Cambiado búsqueda de liquidadores por área (TES, FIN) en lugar de roles inexistentes
+
+2. create.blade.php y edit.blade.php
+   - Select de categoría: Cambiado de valores fijos a @foreach($categorias as $cat)
+   - Ahora usa value="{{ $cat->id }}" (entero)
+
+3. show.blade.php
+   - Cambiado para usar {{ $ordenPago->categoriaGasto->nombre }}
+   - Eliminado array hardcodeado de categorías
+
+4. OrdenPago.php (Modelo)
+   - Relación categoriaGasto(): Corregido a belongsTo() estándar (sin 'codigo')
+   - Eliminado accessor getCategoriaGastoAttribute() (causaba conflicto con relación)
+
+5. OrdenPagoRequest.php
+   - Validación: 'nullable|exists:categorias_gasto,id'
+
+6. Migración categorias_gasto
+   - Agregadas columnas: partida_presupuestaria, presupuesto_anual, requiere_aprobacion
+
+7. CategoriaGasto.php (Modelo)
+   - $fillable: Agregados los nuevos campos
+
+B. SOLUCIÓN ERROR DE ROLES (Tesorería no existe)
+
+8. RolesSeeder.php (NUEVO)
+   - Crea roles: 'Super Admin', 'auxiliar', 'becario', 'supervisor administrativo'
+   - Super Admin obtiene todos los permisos
+
+9. DatabaseSeeder.php (REESTRUCTURADO)
+   - Llama a RolesSeeder.php primero
+   - Crea áreas (TES, CON, CAJ, FIN, ADM, PRE, ARC)
+   - Crea usuarios de prueba con roles correctos:
+     * admin@cps.bo → Super Admin
+     * tesoreria@cps.bo → auxiliar
+     * contabilidad@cps.bo → auxiliar
+     * caja@cps.bo → auxiliar
+     * financiera@cps.bo → auxiliar
+     * administracion@cps.bo → supervisor administrativo
+
+10. Eliminado CategoriasGastoSeeder.php
+    - Unificado en DatabaseSeeder.php con códigos: IT, ME, SE, PA
+
+3. ESTRUCTURA FINAL DE SEEDERS
+-----------------------------
+database/seeders/
+├── DatabaseSeeder.php    # Orquesta los seeders
+├── RolesSeeder.php       # Crea roles y permisos (NUEVO)
+└── (Otros seeders según necesidad)
+
+4. VERIFICACIÓN
+--------------
+Para probar todos los cambios:
+1. Ejecutar: php artisan migrate:fresh --seed
+2. Ir a: http://127.0.0.1:8000/ordenes-pago/create
+3. Verificar que el select de categoría muestre: Incapacidad temporal, Medicamentos, etc.
+4. Guardar orden y verificar en /ordenes-pago/{id} que muestre el nombre de la categoría
+5. Probar edición en /ordenes-pago/{id}/edit
+
+5. CAMBIOS EN RUTAS/CONTROLADOR
+---------------------------------
+- OrdenPagoController.php línea ~157: 
+  Antes: User::role(['Tesorería', 'Financiera'])->get();
+  Después: User::whereHas('area', fn($q) => $q->whereIn('codigo', ['TES', 'FIN']))->get();
+
+Fecha del informe: 2026-04-29
+Errores resueltos: ✅ categoria_gasto_id ✅ Roles inexistentes

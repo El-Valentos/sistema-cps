@@ -1,0 +1,150 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Bandeja Financiera') }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <!-- Messages -->
+            @if (session('success'))
+                <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4" role="alert">
+                    <p>{{ session('success') }}</p>
+                </div>
+            @endif
+            @if (session('error'))
+                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
+                    <p>{{ session('error') }}</p>
+                </div>
+            @endif
+
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    <form id="form-masivo" method="POST" action="{{ route('financiera.aprobarMasivo') }}">
+                        @csrf
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="select-all" class="rounded border-gray-300 text-primary-600 shadow-sm focus:ring-primary-500">
+                                <label for="select-all" class="text-sm font-medium text-gray-700">Seleccionar todos</label>
+                            </div>
+                            <button type="submit" id="btn-masivo" class="hidden bg-primary-900 hover:bg-primary-950 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all">
+                                <i class="fas fa-paper-plane mr-2"></i> Enviar Seleccionados a Contabilidad
+                            </button>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10"></th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">N° Orden</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Beneficiario</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Concepto</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @forelse($ordenes as $orden)
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                                <input type="checkbox" name="ordenes[]" value="{{ $orden->id }}" class="checkbox-item rounded border-gray-300 text-primary-600 shadow-sm focus:ring-primary-500">
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $orden->numero_orden }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $orden->beneficiario_nombre }}</td>
+                                            <td class="px-6 py-4 text-sm text-gray-500">{{ Str::limit($orden->concepto, 50) }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{{ number_format($orden->neto_pagar, 2) }} Bs.</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                <div class="flex gap-2">
+                                                    <a href="{{ route('ordenes-pago.show', $orden) }}" class="bg-primary-100 hover:bg-primary-200 text-primary-800 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors">
+                                                        <i class="fas fa-eye mr-1"></i> Ver
+                                                    </a>
+                                                    
+                                                    <button type="button" onclick="aprobarIndividual({{ $orden->id }})" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors">
+                                                        <i class="fas fa-check mr-1"></i> Aprobar
+                                                    </button>
+
+                                                    <button type="button" onclick="rechazarOrden({{ $orden->id }})" class="bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors">
+                                                        <i class="fas fa-times mr-1"></i> Rechazar
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">No hay órdenes pendientes de revisión financiera.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+                    <div class="mt-4">
+                        {{ $ordenes->links() }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form oculto para aprobación individual -->
+    <form id="form-individual" method="POST" style="display: none;">
+        @csrf
+    </form>
+
+    <!-- Modal Rechazo -->
+    <div id="modal-rechazo" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Motivo de Rechazo</h3>
+                <form id="form-rechazo" method="POST" class="mt-2 text-left">
+                    @csrf
+                    <input type="hidden" name="orden_id" id="rechazo_orden_id">
+                    <textarea name="motivo_rechazo" rows="4" class="shadow-sm focus:ring-primary-500 focus:border-primary-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md" required placeholder="Explique el motivo del rechazo..."></textarea>
+        <div class="flex justify-end gap-2 mt-4">
+            <button type="button" onclick="cerrarModalRechazo()" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">Cancelar</button>
+            <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Rechazar Orden</button>
+        </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function aprobarIndividual(id) {
+            if(confirm('¿Aprobar y enviar a Contabilidad?')) {
+                const form = document.getElementById('form-individual');
+                form.action = `/financiera/${id}/aprobar`;
+                form.submit();
+            }
+        }
+
+        function rechazarOrden(id) {
+            document.getElementById('form-rechazo').action = `/financiera/${id}/rechazar`;
+            document.getElementById('modal-rechazo').classList.remove('hidden');
+        }
+
+        function cerrarModalRechazo() {
+            document.getElementById('modal-rechazo').classList.add('hidden');
+            document.getElementById('form-rechazo').reset();
+        }
+
+        // Script para selección masiva
+        document.getElementById('select-all').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.checkbox-item');
+            checkboxes.forEach(cb => cb.checked = this.checked);
+            toggleBtnMasivo();
+        });
+
+        document.querySelectorAll('.checkbox-item').forEach(cb => {
+            cb.addEventListener('change', toggleBtnMasivo);
+        });
+
+        function toggleBtnMasivo() {
+            const checked = document.querySelectorAll('.checkbox-item:checked');
+            document.getElementById('btn-masivo').classList.toggle('hidden', checked.length === 0);
+        }
+        </script>
+    </div>
+</x-app-layout>

@@ -50,6 +50,8 @@ class ContabilidadController extends Controller
             $cheque = Cheque::create([
                 'orden_pago_id'       => $ordenPago->id,
                 'numero_cheque'       => $numeroCheque,
+                'gestion'             => date('Y'),
+                'banco'               => 'A DESIGNAR',
                 'fecha_emision'       => now()->toDateString(),
                 'fecha_pago'          => now()->addDays(30)->toDateString(),
                 'monto'               => $ordenPago->neto_pagar,
@@ -212,7 +214,7 @@ class ContabilidadController extends Controller
             $this->trackingService->registrarEvento(
                 $ordenPago,
                 'anulacion_cheque',
-                'cheque_generado',
+                $ordenPago->estado,
                 'anulado',
                 'Cheque anulado por Contabilidad'
             );
@@ -281,6 +283,8 @@ class ContabilidadController extends Controller
                 $cheque = Cheque::create([
                     'orden_pago_id'       => $orden->id,
                     'numero_cheque'       => $numeroCheque,
+                    'gestion'             => date('Y'),
+                    'banco'               => 'A DESIGNAR',
                     'fecha_emision'       => now()->toDateString(),
                     'fecha_pago'          => now()->addDays(30)->toDateString(),
                     'monto'               => $orden->neto_pagar,
@@ -365,7 +369,7 @@ class ContabilidadController extends Controller
             $this->trackingService->registrarEvento(
                 $ordenPago,
                 'envio_archivos',
-                'entregado_contabilidad',
+                $ordenPago->estado,
                 'enviado_archivos',
                 'Cheque auditado y enviado a Archivos para su custodia final'
             );
@@ -395,7 +399,7 @@ class ContabilidadController extends Controller
                 $this->trackingService->registrarEvento(
                     $orden,
                     'envio_archivos',
-                    'entregado_contabilidad',
+                    $orden->estado,
                     'enviado_archivos',
                     'Envío masivo a Archivos después de auditoría en Contabilidad'
                 );

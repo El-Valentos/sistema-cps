@@ -151,7 +151,7 @@ class OrdenPagoController extends Controller
         $this->authorize('update', $ordenPago);
 
         $beneficiarios = Beneficiario::where('activo', true)->orderBy('nombre_razon_social')->get();
-        $liquidadores = User::whereHas('area', function($q) {
+        $liquidadores = User::activos()->whereHas('area', function($q) {
             $q->whereIn('codigo', ['TES', 'FIN']);
         })->get();
         $categorias = CategoriaGasto::where('activo', true)->get();
@@ -267,6 +267,10 @@ class OrdenPagoController extends Controller
     public function aprobar(OrdenPago $ordenPago)
     {
         $this->authorize('aprobar', $ordenPago);
+
+        if ($ordenPago->estado !== 'pendiente_tesoreria') {
+            return back()->with('error', 'Esta orden no está pendiente de aprobación por Tesorería');
+        }
 
         try {
             DB::beginTransaction();

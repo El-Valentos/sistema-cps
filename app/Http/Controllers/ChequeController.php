@@ -78,18 +78,16 @@ class ChequeController extends Controller
                 throw new \Exception('La orden de pago no está en estado para generar cheque');
             }
 
-            $numeroCheque = DB::transaction(function () {
-                $ultimoCheque = Cheque::whereYear('created_at', date('Y'))
-                    ->lockForUpdate()
-                    ->orderBy('id', 'desc')
-                    ->first();
+            $ultimoCheque = Cheque::whereYear('created_at', date('Y'))
+                ->lockForUpdate()
+                ->orderBy('id', 'desc')
+                ->first();
 
-                $ultimoNumero = 0;
-                if ($ultimoCheque && preg_match('/CH-\d{4}-(\d+)$/', $ultimoCheque->numero_cheque, $matches)) {
-                    $ultimoNumero = intval($matches[1]);
-                }
-                return 'CH-' . date('Y') . '-' . str_pad($ultimoNumero + 1, 5, '0', STR_PAD_LEFT);
-            });
+            $ultimoNumero = 0;
+            if ($ultimoCheque && preg_match('/CH-\d{4}-(\d+)$/', $ultimoCheque->numero_cheque, $matches)) {
+                $ultimoNumero = intval($matches[1]);
+            }
+            $numeroCheque = 'CH-' . date('Y') . '-' . str_pad($ultimoNumero + 1, 5, '0', STR_PAD_LEFT);
 
             $cheque = Cheque::create([
                 'orden_pago_id' => $ordenPago->id,

@@ -14,21 +14,56 @@
         <!-- Estadísticas rápidas -->
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
             @php
-                $totalOrdenes  = \App\Models\OrdenPago::count();
-                $pendientes    = \App\Models\OrdenPago::where('estado','pendiente_tesoreria')->count();
-                $totalCheques  = \App\Models\Cheque::count();
+                $rol = $role;
+                if ($rol === 'Super Admin') {
+                    $statsOrdenes = \App\Models\OrdenPago::count();
+                    $statsPendientes = \App\Models\OrdenPago::where('estado','pendiente_tesoreria')->count();
+                    $statsCheques = \App\Models\Cheque::count();
+                } elseif ($rol === 'Tesorería') {
+                    $statsOrdenes = \App\Models\OrdenPago::where('estado','pendiente_tesoreria')->count();
+                    $statsPendientes = \App\Models\OrdenPago::where('estado','rechazado_financiera')->count();
+                    $statsCheques = \App\Models\OrdenPago::whereIn('estado',['pendiente_tesoreria','rechazado_financiera'])->count();
+                } elseif ($rol === 'Contabilidad') {
+                    $statsOrdenes = \App\Models\OrdenPago::where('estado','enviado_contabilidad')->count();
+                    $statsPendientes = \App\Models\Cheque::count();
+                    $statsCheques = \App\Models\Cheque::where('estado','emitido')->count();
+                } elseif ($rol === 'Financiera') {
+                    $statsOrdenes = \App\Models\OrdenPago::whereIn('estado',['enviado_financiera','enviado_financiera_cheque'])->count();
+                    $statsPendientes = \App\Models\OrdenPago::where('estado','enviado_financiera')->count();
+                    $statsCheques = \App\Models\OrdenPago::where('estado','enviado_financiera_cheque')->count();
+                } elseif ($rol === 'Presupuesto') {
+                    $statsOrdenes = \App\Models\OrdenPago::where('estado','enviado_presupuesto')->count();
+                    $statsPendientes = 0;
+                    $statsCheques = $statsOrdenes;
+                } elseif ($rol === 'Administración') {
+                    $statsOrdenes = \App\Models\OrdenPago::where('estado','enviado_administracion')->count();
+                    $statsPendientes = 0;
+                    $statsCheques = $statsOrdenes;
+                } elseif ($rol === 'Caja') {
+                    $statsOrdenes = \App\Models\OrdenPago::whereIn('estado',['en_caja','entregado'])->count();
+                    $statsPendientes = \App\Models\OrdenPago::where('estado','en_caja')->count();
+                    $statsCheques = 0;
+                } elseif ($rol === 'Archivos') {
+                    $statsOrdenes = \App\Models\OrdenPago::whereIn('estado',['enviado_archivos','archivado'])->count();
+                    $statsPendientes = \App\Models\OrdenPago::where('estado','enviado_archivos')->count();
+                    $statsCheques = 0;
+                } else {
+                    $statsOrdenes = 0;
+                    $statsPendientes = 0;
+                    $statsCheques = 0;
+                }
             @endphp
             <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-primary-500">
-                <p class="text-xs text-gray-500 uppercase font-medium">Total Órdenes</p>
-                <p class="text-3xl font-bold text-gray-800 mt-1">{{ number_format($totalOrdenes) }}</p>
+                <p class="text-xs text-gray-500 uppercase font-medium">Órdenes</p>
+                <p class="text-3xl font-bold text-gray-800 mt-1">{{ number_format($statsOrdenes) }}</p>
             </div>
             <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-yellow-500">
                 <p class="text-xs text-gray-500 uppercase font-medium">Pendientes</p>
-                <p class="text-3xl font-bold text-yellow-600 mt-1">{{ number_format($pendientes) }}</p>
+                <p class="text-3xl font-bold text-yellow-600 mt-1">{{ number_format($statsPendientes) }}</p>
             </div>
             <div class="bg-white rounded-xl shadow-sm p-5 border-l-4 border-indigo-500">
-                <p class="text-xs text-gray-500 uppercase font-medium">Cheques Emitidos</p>
-                <p class="text-3xl font-bold text-gray-800 mt-1">{{ number_format($totalCheques) }}</p>
+                <p class="text-xs text-gray-500 uppercase font-medium">Cheques</p>
+                <p class="text-3xl font-bold text-gray-800 mt-1">{{ number_format($statsCheques) }}</p>
             </div>
         </div>
 

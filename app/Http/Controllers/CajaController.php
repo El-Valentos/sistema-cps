@@ -18,7 +18,7 @@ class CajaController extends Controller
     public function index(Request $request)
     {
         $query = OrdenPago::with(['beneficiario', 'cheque'])
-            ->whereIn('estado', ['cheque_generado', 'en_caja', 'entregado']);
+            ->whereIn('estado', ['en_caja', 'entregado']);
 
         if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
@@ -35,7 +35,7 @@ class CajaController extends Controller
 
     public function show(OrdenPago $ordenPago)
     {
-        if (!in_array($ordenPago->estado, ['cheque_generado', 'en_caja', 'entregado'])) {
+        if (!in_array($ordenPago->estado, ['en_caja', 'entregado'])) {
             abort(403, 'Esta orden no está disponible para Caja');
         }
 

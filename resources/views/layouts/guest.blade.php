@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name') }}</title>
-    <link rel="stylesheet" href="{{ asset('build/assets/app-5a2e9a38.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    @vite('resources/css/app.css')
 </head>
 <body class="bg-gradient-to-br from-green-900 via-green-800 to-green-700 min-h-screen flex items-center justify-center">
     <div class="w-full max-w-md px-4">
@@ -24,5 +23,6 @@
             {{ $slot }}
         </div>
     </div>
+    @vite('resources/js/app.js')
 </body>
 </html>

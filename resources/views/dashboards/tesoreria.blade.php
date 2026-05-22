@@ -130,7 +130,7 @@
 </div>
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
     const ctx = document.getElementById('categoriasChart').getContext('2d');
     const categoriasData = @json($porCategoria);

@@ -54,9 +54,14 @@ php artisan migrate --seed
 php artisan storage:link
 ```
 
-**7. Levantar el servidor:**
+**7. Levantar servidores:**
 ```bash
 php artisan serve
+```
+
+```bash (otra terminal)
+npm intall 
+npm run dev 
 ```
 
 **8. Abrir en el navegador:** http://localhost:8000

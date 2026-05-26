@@ -11,6 +11,9 @@
                 @endforeach
             </select>
             <button type="submit" class="bg-primary-800 hover:bg-primary-900 text-white px-4 py-2 rounded-lg text-sm"><i class="fas fa-search mr-1"></i>Buscar</button>
+            <a href="{{ route('tracking.pdf', request()->query()) }}" target="_blank" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors ml-auto">
+                <i class="fas fa-file-pdf mr-1"></i>Descargar PDF
+            </a>
         </form>
         <div class="bg-white rounded-xl shadow-sm overflow-hidden">
             <table class="w-full text-sm">

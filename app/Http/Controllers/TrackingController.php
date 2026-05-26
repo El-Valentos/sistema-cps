@@ -6,6 +6,7 @@ use App\Models\OrdenPago;
 use App\Models\TrackingHistorial;
 use App\Services\TrackingService;
 use App\Services\WorkflowOrchestratorService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -20,45 +21,19 @@ class TrackingController extends Controller
 
     public function index(Request $request)
     {
-        $query = OrdenPago::with(['beneficiario', 'trackingHistorial' => function($q) {
-            $q->latest()->limit(1);
-        }]);
-
-        if ($request->filled('estado')) {
-            $query->where('estado', $request->estado);
-        }
-
-        if ($request->filled('numero_orden')) {
-            $query->where('numero_orden', 'like', "%{$request->numero_orden}%");
-        }
-
-        if ($request->filled('fecha_desde')) {
-            $query->whereDate('created_at', '>=', $request->fecha_desde);
-        }
-
-        if ($request->filled('fecha_hasta')) {
-            $query->whereDate('created_at', '<=', $request->fecha_hasta);
-        }
-
-        // Filtro por rol
-        $userRole = auth()->user()->roles->first()->name ?? '';
-        if ($userRole === 'Caja') {
-            $query->whereIn('estado', ['en_caja']);
-        } elseif ($userRole === 'Contabilidad') {
-            $query->whereIn('estado', ['enviado_contabilidad', 'rechazado_contabilidad']);
-        } elseif ($userRole === 'Presupuesto') {
-            $query->whereIn('estado', ['enviado_presupuesto', 'rechazado_presupuesto']);
-        } elseif ($userRole === 'Financiera') {
-            $query->whereIn('estado', ['enviado_financiera', 'enviado_financiera_cheque', 'rechazado_financiera']);
-        } elseif ($userRole === 'Administración') {
-            $query->whereIn('estado', ['enviado_administracion', 'rechazado_administracion']);
-        } elseif ($userRole === 'Tesorería') {
-            $query->whereIn('estado', ['pendiente_tesoreria', 'rechazado_financiera']);
-        }
-
-        $ordenes = $query->orderBy('created_at', 'desc')->paginate(15);
+        $ordenes = $this->getFilteredQuery($request)->orderBy('created_at', 'desc')->paginate(15);
 
         return view('tracking.index', compact('ordenes'));
+    }
+
+    public function generarPDF(Request $request)
+    {
+        $ordenes = $this->getFilteredQuery($request)->orderBy('created_at', 'desc')->get();
+
+        $pdf = Pdf::loadView('dpfs.tracking', compact('ordenes'));
+        $pdf->setPaper('letter', 'landscape');
+
+        return $pdf->download('Reporte_Tracking_' . now()->format('Y-m-d_Hi') . '.pdf');
     }
 
     public function show(OrdenPago $ordenPago)
@@ -230,6 +205,46 @@ class TrackingController extends Controller
     }
 
     // ==================== MÉTODOS PRIVADOS ====================
+
+    private function getFilteredQuery(Request $request)
+    {
+        $query = OrdenPago::with(['beneficiario', 'trackingHistorial' => function($q) {
+            $q->latest()->limit(1);
+        }]);
+
+        if ($request->filled('estado')) {
+            $query->where('estado', $request->estado);
+        }
+
+        if ($request->filled('numero_orden')) {
+            $query->where('numero_orden', 'like', "%{$request->numero_orden}%");
+        }
+
+        if ($request->filled('fecha_desde')) {
+            $query->whereDate('created_at', '>=', $request->fecha_desde);
+        }
+
+        if ($request->filled('fecha_hasta')) {
+            $query->whereDate('created_at', '<=', $request->fecha_hasta);
+        }
+
+        $userRole = auth()->user()->roles->first()->name ?? '';
+        if ($userRole === 'Caja') {
+            $query->whereIn('estado', ['en_caja']);
+        } elseif ($userRole === 'Contabilidad') {
+            $query->whereIn('estado', ['enviado_contabilidad', 'rechazado_contabilidad']);
+        } elseif ($userRole === 'Presupuesto') {
+            $query->whereIn('estado', ['enviado_presupuesto', 'rechazado_presupuesto']);
+        } elseif ($userRole === 'Financiera') {
+            $query->whereIn('estado', ['enviado_financiera', 'enviado_financiera_cheque', 'rechazado_financiera']);
+        } elseif ($userRole === 'Administración') {
+            $query->whereIn('estado', ['enviado_administracion', 'rechazado_administracion']);
+        } elseif ($userRole === 'Tesorería') {
+            $query->whereIn('estado', ['pendiente_tesoreria', 'rechazado_financiera']);
+        }
+
+        return $query;
+    }
 
     private function usuarioPuedeVerOrden(OrdenPago $orden, string $role): bool
     {

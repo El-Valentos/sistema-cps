@@ -106,6 +106,20 @@
                             <div class="text-right">
                                 <p class="font-bold">Bs. {{ number_format($entrega->neto_pagar, 2) }}</p>
                                 <p class="text-xs text-gray-500">{{ $entrega->updated_at->format('d/m/Y H:i') }}</p>
+                                <div class="flex gap-2 mt-2 justify-end">
+                                    <form action="{{ route('caja.cobrado', $entrega) }}" method="POST" onsubmit="return confirm('¿Marcar este cheque como cobrado?')">
+                                        @csrf
+                                        <button type="submit" class="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 font-medium">
+                                            Cobrado
+                                        </button>
+                                    </form>
+                                    <form action="{{ route('caja.revalidar', $entrega) }}" method="POST" onsubmit="return confirm('¿Enviar este cheque a revalidación?')">
+                                        @csrf
+                                        <button type="submit" class="px-3 py-1 bg-orange-500 text-white text-xs rounded hover:bg-orange-600 font-medium">
+                                            Revalidar
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>

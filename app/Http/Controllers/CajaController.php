@@ -114,6 +114,90 @@ class CajaController extends Controller
         }
     }
 
+    public function marcarCobrado(OrdenPago $ordenPago)
+    {
+        if ($ordenPago->estado !== 'entregado') {
+            return back()->with('error', 'Solo se pueden marcar como cobradas órdenes entregadas.');
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $ordenPago->update(['estado' => 'cobrado']);
+
+            $this->trackingService->registrarEvento(
+                $ordenPago,
+                'cobrado',
+                'entregado',
+                'cobrado',
+                'Cheque marcado como cobrado por Caja',
+            );
+
+            DB::commit();
+
+            return back()->with('success', 'Cheque marcado como cobrado exitosamente.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->with('error', 'Error al marcar como cobrado: ' . $e->getMessage());
+        }
+    }
+
+    public function revalidar(OrdenPago $ordenPago)
+    {
+        if ($ordenPago->estado !== 'entregado') {
+            return back()->with('error', 'Solo se pueden revalidar órdenes entregadas.');
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $ordenPago->update(['estado' => 'revalidando']);
+
+            $this->trackingService->registrarEvento(
+                $ordenPago,
+                'revalidar',
+                'entregado',
+                'revalidando',
+                'Cheque enviado a revalidación por Caja',
+            );
+
+            DB::commit();
+
+            return back()->with('success', 'Cheque enviado a revalidación exitosamente.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->with('error', 'Error al revalidar cheque: ' . $e->getMessage());
+        }
+    }
+
+    public function revalidarMasivo(Request $request)
+    {
+        $ids = $request->input('ordenes', []);
+        if (empty($ids)) return back()->with('warning', 'No se seleccionaron órdenes');
+
+        try {
+            DB::beginTransaction();
+            $ordenes = OrdenPago::whereIn('id', $ids)->where('estado', 'entregado')->get();
+            $cont = 0;
+            foreach ($ordenes as $orden) {
+                $orden->update(['estado' => 'revalidando']);
+                $this->trackingService->registrarEvento(
+                    $orden,
+                    'revalidar',
+                    'entregado',
+                    'revalidando',
+                    'Cheque enviado a revalidación masivamente por Caja'
+                );
+                $cont++;
+            }
+            DB::commit();
+            return back()->with('success', "Se han enviado {$cont} cheques a revalidación correctamente");
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->with('error', 'Error al procesar la revalidación masiva: ' . $e->getMessage());
+        }
+    }
+
     public function enviarContabilidadMasivo(Request $request)
     {
         $ids = $request->input('ordenes', []);

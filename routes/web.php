@@ -39,8 +39,8 @@ Route::middleware('guest')->group(function () {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
-    // Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
-    // Route::post('register', [RegisteredUserController::class, 'store']);
+    Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
+    Route::post('register', [RegisteredUserController::class, 'store']);
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
     Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
@@ -118,6 +118,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/{ordenPago}/entrega', [App\Http\Controllers\CajaController::class, 'registrarEntrega'])->name('entrega');
         Route::post('/{ordenPago}/enviar-contabilidad', [App\Http\Controllers\CajaController::class, 'enviarContabilidad'])->name('enviarContabilidad');
         Route::post('/enviar-contabilidad-masivo', [App\Http\Controllers\CajaController::class, 'enviarContabilidadMasivo'])->name('enviarContabilidadMasivo');
+        Route::post('/{ordenPago}/cobrado', [App\Http\Controllers\CajaController::class, 'marcarCobrado'])->name('cobrado');
+        Route::post('/{ordenPago}/revalidar', [App\Http\Controllers\CajaController::class, 'revalidar'])->name('revalidar');
+        Route::post('/revalidar-masivo', [App\Http\Controllers\CajaController::class, 'revalidarMasivo'])->name('revalidarMasivo');
     });
 
     // ==================== CONTABILIDAD ====================
@@ -164,8 +167,9 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // ==================== TRACKING ====================
-    Route::middleware(['auth', 'role:Super Admin|Tesorería|Financiera|Contabilidad|Presupuesto|Administración|Archivos|Caja'])->prefix('tracking')->name('tracking.')->group(function () {
+    Route::middleware(['auth'])->prefix('tracking')->name('tracking.')->group(function () {
         Route::get('/', [TrackingController::class, 'index'])->name('index');
+        Route::get('/pdf', [TrackingController::class, 'generarPDF'])->name('pdf');
         Route::get('/{ordenPago}', [TrackingController::class, 'show'])->name('show');
         Route::post('/{ordenPago}/actualizar', [TrackingController::class, 'actualizar'])->name('actualizar');
         Route::post('/{ordenPago}/entrega', [TrackingController::class, 'registrarEntrega'])->name('entrega');

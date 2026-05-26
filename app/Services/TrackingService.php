@@ -52,6 +52,8 @@ class TrackingService
             'rechazado_administracion'   => 'Administración',
             'en_caja'                    => 'Administración',
             'entregado'                  => 'Caja',
+            'cobrado'                    => 'Caja',
+            'revalidando'                => 'Caja',
         ];
 
         $areaNombre = $mapa[$estado] ?? null;
@@ -75,6 +77,8 @@ class TrackingService
             'rechazado_administracion'   => 'Financiera',
             'en_caja'                    => 'Caja',
             'entregado'                  => null,
+            'cobrado'                    => null,
+            'revalidando'                => null,
             'cerrado'                    => null,
         ];
 

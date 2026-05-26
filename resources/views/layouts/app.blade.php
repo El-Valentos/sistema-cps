@@ -100,12 +100,10 @@
             @endcan
 
             @can('ver_beneficiarios')
-            @unless(auth()->user()->hasRole('Financiera'))
             <a href="{{ route('beneficiarios.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 text-sm font-medium transition-all {{ request()->routeIs('beneficiarios.*') ? 'bg-primary-800 text-white' : 'text-primary-200 hover:bg-primary-900 hover:text-white' }}">
                 <i class="fas fa-users w-5 text-center"></i>
                 <span>Beneficiarios</span>
             </a>
-            @endunless
             @endcan
 
             @if(auth()->user()->hasRole('Presupuesto') || auth()->user()->hasRole('Super Admin'))

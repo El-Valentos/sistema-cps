@@ -38,9 +38,14 @@
                         <input type="checkbox" id="select-all" class="rounded border-gray-300 text-primary-600 shadow-sm focus:ring-primary-500">
                         <label for="select-all" class="text-sm font-medium text-gray-700">Seleccionar todos los entregados</label>
                     </div>
-                    <button type="submit" id="btn-masivo" class="hidden bg-primary-900 hover:bg-primary-950 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all">
-                        📤 Enviar Seleccionados a Archivos
-                    </button>
+                    <div class="flex gap-2">
+                        <button type="submit" id="btn-masivo-archivos" class="hidden bg-primary-900 hover:bg-primary-950 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all">
+                            📤 Enviar Seleccionados a Archivos
+                        </button>
+                        <button type="button" id="btn-masivo-revalidar" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all">
+                            Revalidar Seleccionados
+                        </button>
+                    </div>
                 </div>
 
                 <div class="overflow-x-auto">
@@ -106,16 +111,23 @@
             document.getElementById('select-all').addEventListener('change', function() {
                 const checkboxes = document.querySelectorAll('.checkbox-item');
                 checkboxes.forEach(cb => cb.checked = this.checked);
-                toggleBtnMasivo();
+                toggleBtnArchivos();
             });
 
             document.querySelectorAll('.checkbox-item').forEach(cb => {
-                cb.addEventListener('change', toggleBtnMasivo);
+                cb.addEventListener('change', toggleBtnArchivos);
             });
 
-            function toggleBtnMasivo() {
+            document.getElementById('btn-masivo-revalidar').addEventListener('click', function() {
+                if (!confirm('¿Revalidar los cheques seleccionados?')) return;
+                const form = document.getElementById('form-masivo');
+                form.action = '{{ route("caja.revalidarMasivo") }}';
+                form.submit();
+            });
+
+            function toggleBtnArchivos() {
                 const checked = document.querySelectorAll('.checkbox-item:checked');
-                document.getElementById('btn-masivo').classList.toggle('hidden', checked.length === 0);
+                document.getElementById('btn-masivo-archivos').classList.toggle('hidden', checked.length === 0);
             }
         </script>
     </div>

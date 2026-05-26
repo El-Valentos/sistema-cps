@@ -18,7 +18,7 @@ return [
         'DOMPDF_DEFAULT_FONT' => 'sans-serif',
         'DOMPDF_DPI' => 96,
         'DOMPDF_ENABLE_FONT_SUBSETTING' => true,
-        'DOMPDF_ADMIN_USERNAME' => env('DOMPDF_ADMIN_USERNAME', 'cps_admin'),
-        'DOMPDF_ADMIN_PASSWORD' => env('DOMPDF_ADMIN_PASSWORD', 'CPS2026!'),
+        'DOMPDF_ADMIN_USERNAME' => 'cps_admin',
+        'DOMPDF_ADMIN_PASSWORD' => 'CPS2026!',
     ],
 ];

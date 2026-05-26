@@ -75,6 +75,8 @@ class OrdenPago extends Model
             'rechazado_administracion'   => 'Rechazado por Administración',
             'en_caja'                    => 'En Caja',
             'entregado'                  => 'Entregado',
+            'cobrado'                    => 'Cobrado',
+            'revalidando'                => 'Revalidando',
             'cerrado'                    => 'Cerrado',
             'anulado'                    => 'Anulado',
         ][$this->estado] ?? ucfirst($this->estado);
@@ -97,6 +99,8 @@ class OrdenPago extends Model
             'rechazado_administracion'  => 'red',
             'en_caja'                   => 'fuchsia',
             'entregado'                 => 'green',
+            'cobrado'                   => 'blue',
+            'revalidando'               => 'orange',
             'cerrado'                   => 'gray',
             'anulado'                   => 'red',
         ][$this->estado] ?? 'gray';

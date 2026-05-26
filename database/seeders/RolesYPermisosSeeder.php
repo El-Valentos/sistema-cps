@@ -34,7 +34,7 @@ class RolesYPermisosSeeder extends Seeder
                 'ver_cheques', 'ver_tracking', 'ver_reportes',
             ],
             'Financiera' => [
-                'ver_dashboard',
+                'ver_dashboard', 'ver_beneficiarios',
                 'ver_cheques', 'ver_tracking', 'ver_reportes',
             ],
             'Contabilidad' => [

@@ -39,8 +39,8 @@ Route::middleware('guest')->group(function () {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
-    Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
-    Route::post('register', [RegisteredUserController::class, 'store']);
+    // Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
+    // Route::post('register', [RegisteredUserController::class, 'store']);
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
     Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
@@ -164,7 +164,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // ==================== TRACKING ====================
-    Route::middleware(['auth'])->prefix('tracking')->name('tracking.')->group(function () {
+    Route::middleware(['auth', 'role:Super Admin|Tesorería|Financiera|Contabilidad|Presupuesto|Administración|Archivos|Caja'])->prefix('tracking')->name('tracking.')->group(function () {
         Route::get('/', [TrackingController::class, 'index'])->name('index');
         Route::get('/{ordenPago}', [TrackingController::class, 'show'])->name('show');
         Route::post('/{ordenPago}/actualizar', [TrackingController::class, 'actualizar'])->name('actualizar');

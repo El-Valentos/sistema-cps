@@ -53,9 +53,9 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Rol en el Sistema</label>
-                        <select name="role" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none">
-                            <option value="">-- Sin rol (solo area) --</option>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Rol en el Sistema <span class="text-red-500">*</span></label>
+                        <select name="role" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+                            <option value="">-- Seleccionar Rol --</option>
                             @foreach($roles as $rol)
                             <option value="{{ $rol->name }}" {{ old('role') == $rol->name ? 'selected' : '' }}>{{ $rol->name }}</option>
                             @endforeach

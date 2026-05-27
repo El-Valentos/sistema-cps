@@ -88,6 +88,14 @@ class UserController extends Controller
 
     public function toggleActivo(User $user)
     {
+        if ($user->id === auth()->id()) {
+            return back()->with('error', 'No puedes desactivar tu propio usuario');
+        }
+
+        if ($user->hasRole('Super Admin') && User::role('Super Admin')->count() <= 1) {
+            return back()->with('error', 'Debe existir al menos un Super Admin en el sistema');
+        }
+
         $user->update(['activo' => !$user->activo]);
         $status = $user->activo ? 'activado' : 'desactivado';
         return back()->with('success', "Usuario {$status} correctamente");
@@ -105,7 +113,19 @@ class UserController extends Controller
 
     public function quitarSuperAdmin(User $user)
     {
+        if ($user->id === auth()->id()) {
+            return back()->with('error', 'No puedes quitarte el rol Super Admin a ti mismo');
+        }
+
+        if (User::role('Super Admin')->count() <= 1) {
+            return back()->with('error', 'Debe existir al menos un Super Admin en el sistema');
+        }
+
+        if (!$user->hasRole('Super Admin')) {
+            return back()->with('error', 'El usuario no tiene el rol Super Admin');
+        }
+
         $user->removeRole('Super Admin');
-        return back()->with('success', 'Rol Super Admin eliminado');
+        return back()->with('success', 'Rol Super Admin eliminado correctamente');
     }
 }

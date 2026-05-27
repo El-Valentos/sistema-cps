@@ -130,6 +130,7 @@
             @endcan
 
             @can('ver_beneficiarios')
+            @unless(auth()->user()->hasRole('Financiera'))
             <a href="{{ route('beneficiarios.index') }}" class="bg-white hover:bg-gray-50 text-gray-800 rounded-xl p-5 flex items-center gap-4 transition-colors shadow border border-gray-200">
                 <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
                     <i class="fas fa-users text-yellow-600 text-xl"></i>
@@ -139,6 +140,7 @@
                     <p class="text-gray-400 text-xs mt-0.5">Gestión de beneficiarios</p>
                 </div>
             </a>
+            @endunless
             @endcan
 
             @if(auth()->user()->hasRole('Super Admin') || auth()->user()->hasRole('Contabilidad'))

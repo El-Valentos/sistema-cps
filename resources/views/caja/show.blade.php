@@ -6,6 +6,8 @@
             <h2 class="text-xl font-bold text-gray-800">Orden de Pago: {{ $ordenPago->numero_orden }}</h2>
             @if($ordenPago->estado === 'entregado')
             <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium ml-auto">Entregado</span>
+            @elseif($ordenPago->estado === 'revalidado')
+            <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium ml-auto">Revalidado</span>
             @else
             <span class="px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-sm font-medium ml-auto">Pendiente de Entrega</span>
             @endif
@@ -80,6 +82,13 @@
                     📤 Enviar a Contabilidad para Archivo
                 </button>
             </form>
+        </div>
+        @endif
+
+        @if($ordenPago->estado === 'revalidado')
+        <div class="bg-gray-50 rounded-xl p-5 mb-6 border border-gray-200">
+            <h3 class="text-gray-800 font-bold mb-2"><i class="fas fa-check-circle mr-2"></i>Cheque Revalidado</h3>
+            <p class="text-gray-600 text-sm">Este cheque ha sido revalidado. No se puede editar ni entregar.</p>
         </div>
         @endif
     </div>

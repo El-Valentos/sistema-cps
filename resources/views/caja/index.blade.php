@@ -17,6 +17,7 @@
                         <option value="cheque_generado" {{ request('estado') === 'cheque_generado' ? 'selected' : '' }}>Cheque Generado</option>
                         <option value="en_caja" {{ request('estado') === 'en_caja' ? 'selected' : '' }}>En Caja</option>
                         <option value="entregado" {{ request('estado') === 'entregado' ? 'selected' : '' }}>Entregado</option>
+                        <option value="revalidado" {{ request('estado') === 'revalidado' ? 'selected' : '' }}>Revalidado</option>
                     </select>
                 </div>
                 <button type="submit" class="bg-primary-900 hover:bg-primary-950 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
@@ -33,11 +34,7 @@
         <form id="form-masivo" method="POST" action="{{ route('caja.enviarContabilidadMasivo') }}">
             @csrf
             <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                <div class="p-4 bg-gray-50 border-b flex justify-between items-center">
-                    <div class="flex items-center gap-2">
-                        <input type="checkbox" id="select-all" class="rounded border-gray-300 text-primary-600 shadow-sm focus:ring-primary-500">
-                        <label for="select-all" class="text-sm font-medium text-gray-700">Seleccionar todos los entregados</label>
-                    </div>
+                <div class="p-4 bg-gray-50 border-b flex justify-end items-center">
                     <div class="flex gap-2">
                         <button type="submit" id="btn-masivo-archivos" class="hidden bg-primary-900 hover:bg-primary-950 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all">
                             📤 Enviar Seleccionados a Archivos
@@ -65,9 +62,7 @@
                             @forelse($ordenes as $orden)
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="px-6 py-4">
-                                    @if($orden->estado === 'entregado')
                                     <input type="checkbox" name="ordenes[]" value="{{ $orden->id }}" class="checkbox-item rounded border-gray-300 text-primary-600 shadow-sm focus:ring-primary-500">
-                                    @endif
                                 </td>
                                 <td class="px-6 py-4 font-medium text-gray-800">{{ $orden->numero_orden }}</td>
                                 <td class="px-6 py-4">{{ $orden->beneficiario_nombre ?? '-' }}</td>
@@ -80,12 +75,20 @@
                                     <span class="px-2 py-1 bg-primary-100 text-primary-800 rounded-full text-xs font-medium">En Caja</span>
                                     @elseif($orden->estado === 'entregado')
                                     <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Entregado</span>
+                                    @elseif($orden->estado === 'revalidado')
+                                    <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">Revalidado</span>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 text-right">
+                                    @if($orden->estado === 'revalidado')
+                                    <span class="bg-gray-100 text-gray-400 px-3 py-1.5 rounded-lg text-sm font-medium cursor-not-allowed">
+                                        <i class="fas fa-eye mr-1"></i> Ver
+                                    </span>
+                                    @else
                                     <a href="{{ route('caja.show', $orden) }}" class="bg-primary-100 hover:bg-primary-200 text-primary-800 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors">
                                         <i class="fas fa-eye mr-1"></i> Ver y Entregar
                                     </a>
+                                    @endif
                                 </td>
                             </tr>
                             @empty
@@ -108,21 +111,20 @@
         </form>
 
         <script>
-            document.getElementById('select-all').addEventListener('change', function() {
-                const checkboxes = document.querySelectorAll('.checkbox-item');
-                checkboxes.forEach(cb => cb.checked = this.checked);
-                toggleBtnArchivos();
-            });
-
             document.querySelectorAll('.checkbox-item').forEach(cb => {
                 cb.addEventListener('change', toggleBtnArchivos);
             });
 
             document.getElementById('btn-masivo-revalidar').addEventListener('click', function() {
-                if (!confirm('¿Revalidar los cheques seleccionados?')) return;
-                const form = document.getElementById('form-masivo');
-                form.action = '{{ route("caja.revalidarMasivo") }}';
-                form.submit();
+                const seleccionados = document.querySelectorAll('.checkbox-item:checked');
+                if (seleccionados.length === 0) return;
+                if (!confirm('¿Revalidar los ' + seleccionados.length + ' cheques seleccionados?')) return;
+
+                this.disabled = true;
+                this.textContent = 'Revalidando...';
+
+                document.getElementById('form-masivo').action = '{{ route("caja.revalidarMasivo") }}';
+                document.getElementById('form-masivo').submit();
             });
 
             function toggleBtnArchivos() {

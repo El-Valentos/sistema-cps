@@ -77,6 +77,7 @@ class OrdenPago extends Model
             'entregado'                  => 'Entregado',
             'cobrado'                    => 'Cobrado',
             'revalidando'                => 'Revalidando',
+            'revalidado'                 => 'Revalidado',
             'cerrado'                    => 'Cerrado',
             'anulado'                    => 'Anulado',
         ][$this->estado] ?? ucfirst($this->estado);
@@ -101,6 +102,7 @@ class OrdenPago extends Model
             'entregado'                 => 'green',
             'cobrado'                   => 'blue',
             'revalidando'               => 'orange',
+            'revalidado'                => 'gray',
             'cerrado'                   => 'gray',
             'anulado'                   => 'red',
         ][$this->estado] ?? 'gray';

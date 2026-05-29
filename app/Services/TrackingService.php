@@ -54,6 +54,7 @@ class TrackingService
             'entregado'                  => 'Caja',
             'cobrado'                    => 'Caja',
             'revalidando'                => 'Caja',
+            'revalidado'                 => 'Caja',
         ];
 
         $areaNombre = $mapa[$estado] ?? null;
@@ -79,6 +80,7 @@ class TrackingService
             'entregado'                  => null,
             'cobrado'                    => null,
             'revalidando'                => null,
+            'revalidado'                 => null,
             'cerrado'                    => null,
         ];
 

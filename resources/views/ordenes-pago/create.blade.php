@@ -93,20 +93,20 @@
                         <div class="flex items-center gap-4">
                             <label class="flex items-center gap-2 text-sm text-gray-700">
                                 <input type="checkbox" name="aplica_retencion_7" id="ret7" value="1" {{ old('aplica_retencion_7')?'checked':'' }} onchange="calcularNeto()" class="rounded">
-                                Retención 7% (IUE)
+                                Retención 7%
                             </label>
                             <label class="flex items-center gap-2 text-sm text-gray-700">
                                 <input type="checkbox" name="aplica_retencion_35" id="ret35" value="1" {{ old('aplica_retencion_35')?'checked':'' }} onchange="calcularNeto()" class="rounded">
-                                Retención 3.5% (IT)
+                                Retención 3.5%
                             </label>
                         </div>
                         <div class="grid grid-cols-3 gap-3">
                             <div class="bg-red-50 border border-red-200 rounded-lg p-3" id="retencion_7_box" style="display:none">
-                                <p class="text-xs text-red-700 font-medium">Descuento 7% (IUE)</p>
+                                <p class="text-xs text-red-700 font-medium">Descuento 7%</p>
                                 <p class="text-lg font-bold text-red-800" id="ret7_display">Bs. 0.00</p>
                             </div>
                             <div class="bg-orange-50 border border-orange-200 rounded-lg p-3" id="retencion_35_box" style="display:none">
-                                <p class="text-xs text-orange-700 font-medium">Descuento 3.5% (IT)</p>
+                                <p class="text-xs text-orange-700 font-medium">Descuento 3.5%</p>
                                 <p class="text-lg font-bold text-orange-800" id="ret35_display">Bs. 0.00</p>
                             </div>
                             <div class="bg-green-50 border border-green-200 rounded-lg p-3">

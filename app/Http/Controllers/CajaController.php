@@ -18,7 +18,7 @@ class CajaController extends Controller
     public function index(Request $request)
     {
         $query = OrdenPago::with(['beneficiario', 'cheque'])
-            ->whereIn('estado', ['en_caja', 'entregado']);
+            ->whereIn('estado', ['en_caja', 'entregado', 'revalidado']);
 
         if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
@@ -35,7 +35,7 @@ class CajaController extends Controller
 
     public function show(OrdenPago $ordenPago)
     {
-        if (!in_array($ordenPago->estado, ['en_caja', 'entregado'])) {
+        if (!in_array($ordenPago->estado, ['en_caja', 'entregado', 'revalidado'])) {
             abort(403, 'Esta orden no está disponible para Caja');
         }
 
@@ -151,19 +151,19 @@ class CajaController extends Controller
         try {
             DB::beginTransaction();
 
-            $ordenPago->update(['estado' => 'revalidando']);
+            $ordenPago->update(['estado' => 'revalidado']);
 
             $this->trackingService->registrarEvento(
                 $ordenPago,
                 'revalidar',
                 'entregado',
-                'revalidando',
-                'Cheque enviado a revalidación por Caja',
+                'revalidado',
+                'Cheque revalidado por Caja',
             );
 
             DB::commit();
 
-            return back()->with('success', 'Cheque enviado a revalidación exitosamente.');
+            return back()->with('success', 'Cheque revalidado exitosamente.');
         } catch (\Exception $e) {
             DB::rollback();
             return back()->with('error', 'Error al revalidar cheque: ' . $e->getMessage());
@@ -180,18 +180,18 @@ class CajaController extends Controller
             $ordenes = OrdenPago::whereIn('id', $ids)->where('estado', 'entregado')->get();
             $cont = 0;
             foreach ($ordenes as $orden) {
-                $orden->update(['estado' => 'revalidando']);
+                $orden->update(['estado' => 'revalidado']);
                 $this->trackingService->registrarEvento(
                     $orden,
                     'revalidar',
                     'entregado',
-                    'revalidando',
-                    'Cheque enviado a revalidación masivamente por Caja'
+                    'revalidado',
+                    'Cheque revalidado masivamente por Caja'
                 );
                 $cont++;
             }
             DB::commit();
-            return back()->with('success', "Se han enviado {$cont} cheques a revalidación correctamente");
+            return back()->with('success', "Se han revalidado {$cont} cheques correctamente");
         } catch (\Exception $e) {
             DB::rollback();
             return back()->with('error', 'Error al procesar la revalidación masiva: ' . $e->getMessage());

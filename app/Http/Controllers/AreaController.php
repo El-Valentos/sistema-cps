@@ -48,7 +48,7 @@ class AreaController extends Controller
             'codigo' => strtoupper($request->codigo),
             'descripcion' => $request->descripcion,
             'orden_flujo' => $request->orden_flujo,
-            'activo' => $request->has('activo'),
+            'activo' => $request->boolean('activo'),
         ]);
 
         return redirect()->route('areas.index')->with('success', 'Área actualizada exitosamente');

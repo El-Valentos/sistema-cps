@@ -11,6 +11,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->append(\App\Http\Middleware\SecurityHeadersMiddleware::class);
+
         $middleware->alias([
             'role'             => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission'       => \Spatie\Permission\Middleware\PermissionMiddleware::class,
@@ -18,5 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e) {
+            return response()->view('errors.404', [], 404);
+        });
     })->create();

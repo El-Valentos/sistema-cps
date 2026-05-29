@@ -114,9 +114,11 @@ class BeneficiarioController extends Controller
     {
         if ($request->filled('q')) {
             $q = $request->q;
-            $beneficiarios = Beneficiario::where('nombre_razon_social', 'like', "%{$q}%")
-                ->orWhere('apellidos', 'like', "%{$q}%")
-                ->orWhere('ci_nit', 'like', "%{$q}%")
+            $beneficiarios = Beneficiario::where(function ($query) use ($q) {
+                $query->where('nombre_razon_social', 'like', "%{$q}%")
+                    ->orWhere('apellidos', 'like', "%{$q}%")
+                    ->orWhere('ci_nit', 'like', "%{$q}%");
+            })
                 ->limit(10)
                 ->get(['id', 'nombre_razon_social', 'apellidos', 'ci_nit', 'telefono', 'direccion']);
 

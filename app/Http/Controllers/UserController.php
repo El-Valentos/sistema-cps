@@ -7,7 +7,7 @@ use App\Models\Area;
 use App\Http\Requests\UserRequest;
 use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -42,19 +42,27 @@ class UserController extends Controller
 
     public function store(UserRequest $request)
     {
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'cargo' => $request->cargo,
-            'telefono' => $request->telefono,
-            'area_id' => $request->area_id,
-            'activo' => true,
-        ]);
+        try {
+            $user = DB::transaction(function () use ($request) {
+                $user = User::create([
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'password' => $request->password,
+                    'cargo' => $request->cargo,
+                    'telefono' => $request->telefono,
+                    'area_id' => $request->area_id,
+                    'activo' => $request->boolean('activo', true),
+                ]);
 
-        $user->assignRole($request->role);
+                $user->assignRole($request->role);
 
-        return redirect()->route('users.index')->with('success', 'Usuario creado exitosamente');
+                return $user;
+            });
+
+            return redirect()->route('users.index')->with('success', 'Usuario creado exitosamente');
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Error al crear el usuario: ' . $e->getMessage());
+        }
     }
 
     public function edit(User $user)
@@ -72,11 +80,11 @@ class UserController extends Controller
             'cargo' => $request->cargo,
             'telefono' => $request->telefono,
             'area_id' => $request->area_id,
-            'activo' => $request->has('activo'),
+            'activo' => $request->boolean('activo'),
         ]);
 
         if ($request->filled('password')) {
-            $user->update(['password' => Hash::make($request->password)]);
+            $user->update(['password' => $request->password]);
         }
 
         if ($request->filled('role')) {
@@ -95,6 +103,14 @@ class UserController extends Controller
 
     public function asignarSuperAdmin(User $user)
     {
+        if ($user->id === auth()->id()) {
+            return back()->with('error', 'No puedes asignarte el rol Super Admin a ti mismo');
+        }
+
+        if ($user->hasRole('Super Admin')) {
+            return back()->with('error', 'El usuario ya tiene el rol Super Admin');
+        }
+
         $superAdminRole = Role::where('name', 'Super Admin')->first();
         if ($superAdminRole) {
             $user->assignRole('Super Admin');

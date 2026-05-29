@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class AreaRequest extends FormRequest
 {
@@ -17,7 +18,10 @@ class AreaRequest extends FormRequest
 
         return [
             'nombre'      => 'required|string|max:255',
-            'codigo'      => 'required|string|max:50|unique:areas,codigo,' . ($areaId?->id ?? 'NULL'),
+            'codigo'      => [
+                'required', 'string', 'max:50',
+                Rule::unique('areas')->ignore($areaId?->id)->whereNull('deleted_at'),
+            ],
             'descripcion' => 'nullable|string',
             'orden_flujo' => 'required|integer',
         ];

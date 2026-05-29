@@ -65,24 +65,17 @@ php artisan serve
 
 ## 👤 USUARIOS DE PRUEBA
 
-| Email | Contraseña | Rol |
-|-------|-----------|-----|
-| admin@cps.bo | Admin1234! | Super Admin |
-| tesoreria@cps.bo | Tesorer1a! | Tesorería |
-| contabilidad@cps.bo | Contab1l! | Contabilidad |
-
+| Email              | Contraseña | Rol |
+|--------------------|------------|-----|
+admin@cps.bo         |	Admin1234!|	Super Admin
+tesoreria@cps.bo     |	Tesorer1a!|	Tesorería
+contabilidad@cps.bo  |	 Contab1l!|	Contabilidad
+caja@cps.bo	         |    Caja123!|	Caja
+financiera@cps.bo    |	 Financ13!|	Financiera
+presupuesto@cps.bo   |	 Presup12!|	Presupuesto
+administracion@cps.bo|	 Admin123!|	Administración
+archivos@cps.bo      |	 Archiv12!|	Archivos
 ---
-
-## 🔄 FLUJO DEL SISTEMA
-
-```
-Tesorería          Contabilidad       Caja
-   │                    │               │
-   ▼                    ▼               ▼
-Crea Orden  ──────►  Genera      ──►  Entrega
-de Pago      Aprueba  Cheque         Cheque al
-             y Envía                 Beneficiario
-```
 
 ## 📋 MÓDULOS
 

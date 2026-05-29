@@ -28,7 +28,7 @@ class BeneficiarioRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'activo' => $this->has('activo') ? true : false,
+            'activo' => $this->boolean('activo'),
         ]);
     }
 }

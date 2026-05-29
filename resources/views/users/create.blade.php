@@ -62,6 +62,12 @@
                         </select>
                         <p class="text-xs text-gray-500 mt-1">Rol que determina los permisos y secciones a las que tendrá acceso.</p>
                     </div>
+                    <div class="md:col-span-2">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="activo" value="1" {{ old('activo', true) ? 'checked' : '' }} class="w-4 h-4 text-primary-700 rounded border-gray-300 focus:ring-primary-500">
+                            <span class="text-sm font-medium text-gray-700">Usuario Activo en el Sistema</span>
+                        </label>
+                    </div>
                 </div>
 
                 <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">

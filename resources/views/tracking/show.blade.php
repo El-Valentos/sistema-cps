@@ -97,7 +97,7 @@
                 </div>
                 <div class="flex-1 min-w-48">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Comentario</label>
-                    <input type="text" name="comentario" placeholder="Opcional..." class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+                    <input type="text" name="comentario" placeholder="Opcional..." autocomplete="off" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none">
                 </div>
                 <button type="submit" class="bg-primary-900 hover:bg-primary-950 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
                     <i class="fas fa-arrow-right mr-2"></i>Actualizar

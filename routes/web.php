@@ -65,7 +65,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/api/v1/beneficiarios/buscar', [BeneficiarioController::class, 'buscar'])->name('api.beneficiarios.buscar');
 
     // ==================== ÓRDENES DE PAGO ====================
-    Route::middleware(['role:Tesorería|Super Admin'])->prefix('ordenes-pago')->name('ordenes-pago.')->group(function () {
+    Route::middleware(['role:Tesorería|Financiera|Contabilidad|Presupuesto|Administración|Caja|Archivos|Super Admin'])->prefix('ordenes-pago')->name('ordenes-pago.')->group(function () {
         Route::get('/', [OrdenPagoController::class, 'index'])->name('index');
         Route::get('/create', [OrdenPagoController::class, 'create'])->name('create');
         Route::post('/', [OrdenPagoController::class, 'store'])->name('store');
@@ -74,6 +74,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/{ordenPago}', [OrdenPagoController::class, 'update'])->name('update');
         Route::get('/{ordenPago}/pdf', [OrdenPagoController::class, 'generarPDF'])->name('pdf');
         Route::post('/{ordenPago}/aprobar', [OrdenPagoController::class, 'aprobar'])->name('aprobar');
+        Route::post('/{ordenPago}/reenviar-financiera', [OrdenPagoController::class, 'reenviarFinanciera'])->name('reenviar-financiera');
         Route::post('/enviar-masivo', [OrdenPagoController::class, 'enviarMasivo'])->name('enviar-masivo');
         Route::get('/{ordenPago}/generar-cheque', [OrdenPagoController::class, 'generarCheque'])->name('generate-cheque');
     });

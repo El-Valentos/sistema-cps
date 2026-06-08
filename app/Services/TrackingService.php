@@ -40,6 +40,7 @@ class TrackingService
         $mapa = [
             'pendiente_tesoreria'        => 'Tesorería',
             'enviado_financiera'         => 'Tesorería',
+            'reenviado_financiera'       => 'Tesorería',
             'rechazado_financiera'       => 'Financiera',
             'enviado_contabilidad'       => 'Financiera',
             'rechazado_contabilidad'     => 'Contabilidad',
@@ -66,6 +67,7 @@ class TrackingService
         $mapa = [
             'pendiente_tesoreria'        => 'Tesorería',
             'enviado_financiera'         => 'Financiera',
+            'reenviado_financiera'       => 'Financiera',
             'rechazado_financiera'       => 'Tesorería',
             'enviado_contabilidad'       => 'Contabilidad',
             'rechazado_contabilidad'     => 'Tesorería',

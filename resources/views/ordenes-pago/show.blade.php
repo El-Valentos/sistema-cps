@@ -153,11 +153,19 @@
                 <i class="fas fa-file-pdf mr-2"></i>Ver PDF
             </a>
             @can('aprobar_orden_pago')
-            @if(in_array($ordenPago->estado, ['pendiente_tesoreria', 'rechazado_financiera']))
+            @if($ordenPago->estado === 'pendiente_tesoreria')
             <form method="POST" action="{{ route('ordenes-pago.aprobar', $ordenPago) }}" onsubmit="return confirm('¿Aprobar y enviar a Financiera?')">
                 @csrf
                 <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
                     <i class="fas fa-check mr-2"></i>Aprobar y Enviar a Financiera
+                </button>
+            </form>
+            @endif
+            @if($ordenPago->estado === 'rechazado_financiera')
+            <form method="POST" action="{{ route('ordenes-pago.reenviar-financiera', $ordenPago) }}" onsubmit="return confirm('¿Reenviar a Financiera?')">
+                @csrf
+                <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                    <i class="fas fa-redo mr-2"></i>Reenviar a Financiera
                 </button>
             </form>
             @endif

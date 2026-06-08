@@ -28,8 +28,6 @@
                             @endif
                             <option value="cheques">Cheques</option>
                             <option value="beneficiarios">Beneficiarios</option>
-                            <option value="resoluciones">Resoluciones</option>
-                            <option value="devoluciones">Devoluciones por Pagar</option>
                             @endif
                         </select>
                     </div>

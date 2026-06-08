@@ -173,9 +173,11 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // ==================== REPORTES ====================
-    Route::middleware(['role:Tesorería|Financiera|Contabilidad|Presupuesto|Administración|Caja|Super Admin'])->prefix('reportes')->name('reportes.')->group(function () {
+    Route::middleware(['role:Tesorería|Financiera|Contabilidad|Presupuesto|Administración|Caja|Archivos|Super Admin'])->prefix('reportes')->name('reportes.')->group(function () {
         Route::get('/', [ReporteController::class, 'index'])->name('index');
         Route::post('/generar', [ReporteController::class, 'generar'])->name('generar');
+        Route::get('/consolidado', [ReporteController::class, 'consolidado'])->name('consolidado');
+        Route::get('/consolidado/pdf', [ReporteController::class, 'exportarConsolidadoPDF'])->name('consolidado.pdf');
     });
 
     // Logout

@@ -12,7 +12,7 @@ class OrdenPagoPolicy
         
         if ($role === 'Super Admin') return true;
         if ($role === 'Archivos') return true;
-        if ($role === 'Tesorería' && in_array($ordenPago->estado, ['pendiente_tesoreria', 'rechazado_financiera'])) return true;
+        if ($role === 'Tesorería' && in_array($ordenPago->estado, ['pendiente_tesoreria', 'reenviado_financiera', 'rechazado_financiera'])) return true;
         if ($role === 'Financiera') return true;
         if ($role === 'Contabilidad') return true;
         if ($role === 'Presupuesto') return true;
@@ -54,6 +54,8 @@ class OrdenPagoPolicy
         if ($role === 'Contabilidad' && $ordenPago->estado === 'cheque_generado') return true;
         if ($role === 'Caja' && in_array($ordenPago->estado, ['cheque_generado', 'en_caja'])) return true;
         if ($role === 'Super Admin' && $ordenPago->estado === 'entregado') return true;
+        if ($role === 'Financiera' && in_array($ordenPago->estado, ['enviado_financiera', 'enviado_financiera_cheque'])) return true;
+        if ($role === 'Tesorería' && $ordenPago->estado === 'rechazado_financiera') return true;
         return false;
     }
     

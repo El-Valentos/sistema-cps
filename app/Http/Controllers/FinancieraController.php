@@ -18,8 +18,8 @@ class FinancieraController extends Controller
 
     public function index()
     {
-        // Órdenes nuevas de Tesorería
-        $ordenes = OrdenPago::where('estado', 'enviado_financiera')
+        // Órdenes nuevas de Tesorería y reenviadas
+        $ordenes = OrdenPago::whereIn('estado', ['enviado_financiera', 'reenviado_financiera'])
             ->with(['beneficiario', 'categoriaGasto', 'creador'])
             ->orderBy('created_at', 'desc')
             ->paginate(15);
@@ -105,8 +105,17 @@ class FinancieraController extends Controller
 
     public function aprobar(OrdenPago $ordenPago)
     {
+        // Estados desde los cuales se permite aprobar
+        $estadosPermitidos = ['enviado_financiera', 'reenviado_financiera'];
+
+        if (!in_array($ordenPago->estado, $estadosPermitidos)) {
+            return back()->with('error', 'La orden no puede ser aprobada. Estado actual: ' . $ordenPago->estado);
+        }
+
         try {
             DB::beginTransaction();
+
+            $estadoAnterior = $ordenPago->estado;
 
             $ordenPago->update([
                 'estado' => 'enviado_contabilidad'
@@ -115,7 +124,7 @@ class FinancieraController extends Controller
             $this->trackingService->registrarEvento(
                 $ordenPago,
                 'envio_contabilidad',
-                'enviado_financiera',
+                $estadoAnterior,
                 'enviado_contabilidad',
                 'Orden aprobada por Financiera y enviada a Contabilidad'
             );
@@ -137,8 +146,17 @@ class FinancieraController extends Controller
             'motivo_rechazo' => 'required|string|min:10'
         ]);
 
+        // Estados desde los cuales se permite rechazar (incluye reenviadas)
+        $estadosPermitidos = ['enviado_financiera', 'reenviado_financiera'];
+
+        if (!in_array($ordenPago->estado, $estadosPermitidos)) {
+            return back()->with('error', 'La orden no puede ser rechazada. Estado actual: ' . $ordenPago->estado);
+        }
+
         try {
             DB::beginTransaction();
+
+            $estadoAnterior = $ordenPago->estado;
 
             $ordenPago->update([
                 'estado' => 'rechazado_financiera',
@@ -148,7 +166,7 @@ class FinancieraController extends Controller
             $this->trackingService->registrarEvento(
                 $ordenPago,
                 'rechazo_financiera',
-                'enviado_financiera',
+                $estadoAnterior,
                 'rechazado_financiera',
                 'Orden rechazada por Financiera. Motivo: ' . $request->motivo_rechazo
             );
@@ -171,14 +189,18 @@ class FinancieraController extends Controller
 
         try {
             DB::beginTransaction();
-            $ordenes = OrdenPago::whereIn('id', $ids)->where('estado', 'enviado_financiera')->get();
+            $ordenes = OrdenPago::whereIn('id', $ids)
+                ->whereIn('estado', ['enviado_financiera', 'reenviado_financiera'])
+                ->get();
+
             $cont = 0;
             foreach ($ordenes as $orden) {
+                $estadoAnterior = $orden->estado;
                 $orden->update(['estado' => 'enviado_contabilidad']);
                 $this->trackingService->registrarEvento(
                     $orden,
                     'envio_contabilidad',
-                    'enviado_financiera',
+                    $estadoAnterior,
                     'enviado_contabilidad',
                     'Orden aprobada masivamente por Financiera y enviada a Contabilidad'
                 );

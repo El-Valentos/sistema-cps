@@ -52,13 +52,13 @@ class OrdenPagoController extends Controller
         // Filtro por rol
         if (!auth()->user()->hasRole('Super Admin')) {
             if (auth()->user()->hasRole('Tesorería')) {
-                $query->whereIn('estado', ['pendiente_tesoreria', 'rechazado_financiera']);
+                $query->whereIn('estado', ['pendiente_tesoreria', 'reenviado_financiera', 'rechazado_financiera']);
             } elseif (auth()->user()->hasRole('Contabilidad')) {
                 $query->where('estado', 'enviado_contabilidad');
             } elseif (auth()->user()->hasRole('Caja')) {
                 $query->where('estado', 'cheque_generado');
             } elseif (auth()->user()->hasRole('Financiera')) {
-                $query->whereIn('estado', ['enviado_financiera', 'enviado_contabilidad', 'rechazado_financiera']);
+                $query->whereIn('estado', ['enviado_financiera', 'reenviado_financiera', 'enviado_contabilidad', 'rechazado_financiera']);
             }
         }
 
@@ -298,6 +298,40 @@ class OrdenPagoController extends Controller
         } catch (\Exception $e) {
             DB::rollback();
             return back()->with('error', 'Error al aprobar la orden: ' . $e->getMessage());
+        }
+    }
+
+    public function reenviarFinanciera(OrdenPago $ordenPago)
+    {
+        if ($ordenPago->estado !== 'rechazado_financiera') {
+            return back()->with('error', 'Solo se pueden reenviar órdenes rechazadas por Financiera');
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $ordenPago->update([
+                'aprobado_por' => auth()->id(),
+                'fecha_aprobacion' => now(),
+                'estado' => 'reenviado_financiera'
+            ]);
+
+            $this->trackingService->registrarEvento(
+                $ordenPago,
+                'reenvio_financiera',
+                'rechazado_financiera',
+                'reenviado_financiera',
+                'Orden reenviada a Financiera después de rechazo'
+            );
+
+            DB::commit();
+
+            return redirect()->route('ordenes-pago.show', $ordenPago)
+                ->with('success', 'Orden reenviada a Financiera exitosamente');
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->with('error', 'Error al reenviar la orden: ' . $e->getMessage());
         }
     }
 

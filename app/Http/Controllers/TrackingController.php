@@ -66,7 +66,7 @@ class TrackingController extends Controller
         $this->authorize('actualizar', $ordenPago);
 
         $request->validate([
-            'nuevo_estado' => 'required|in:enviado_financiera,rechazado_financiera,enviado_contabilidad,rechazado_contabilidad,enviado_presupuesto,rechazado_presupuesto,enviado_financiera_cheque,rechazado_financiera,enviado_administracion,rechazado_administracion,en_caja,entregado,cerrado',
+            'nuevo_estado' => 'required|in:enviado_financiera,reenviado_financiera,rechazado_financiera,enviado_contabilidad,rechazado_contabilidad,enviado_presupuesto,rechazado_presupuesto,enviado_financiera_cheque,rechazado_financiera_cheque,enviado_administracion,rechazado_administracion,en_caja,entregado,cerrado',
             'comentario' => 'nullable|string|max:500'
         ]);
 
@@ -236,11 +236,11 @@ class TrackingController extends Controller
         } elseif ($userRole === 'Presupuesto') {
             $query->whereIn('estado', ['enviado_presupuesto', 'rechazado_presupuesto']);
         } elseif ($userRole === 'Financiera') {
-            $query->whereIn('estado', ['enviado_financiera', 'enviado_financiera_cheque', 'rechazado_financiera']);
+            $query->whereIn('estado', ['enviado_financiera', 'reenviado_financiera', 'enviado_financiera_cheque', 'rechazado_financiera']);
         } elseif ($userRole === 'Administración') {
             $query->whereIn('estado', ['enviado_administracion', 'rechazado_administracion']);
         } elseif ($userRole === 'Tesorería') {
-            $query->whereIn('estado', ['pendiente_tesoreria', 'rechazado_financiera']);
+            $query->whereIn('estado', ['pendiente_tesoreria', 'enviado_financiera', 'reenviado_financiera', 'rechazado_financiera']);
         }
 
         return $query;
@@ -250,9 +250,9 @@ class TrackingController extends Controller
     {
         switch($role) {
             case 'Tesorería':
-                return in_array($orden->estado, ['pendiente_tesoreria', 'rechazado_financiera']) || $orden->creado_por === auth()->id();
+                return in_array($orden->estado, ['pendiente_tesoreria', 'enviado_financiera', 'reenviado_financiera', 'rechazado_financiera']) || $orden->creado_por === auth()->id();
             case 'Financiera':
-                return in_array($orden->estado, ['enviado_financiera', 'rechazado_financiera', 'enviado_contabilidad']);
+                return in_array($orden->estado, ['enviado_financiera', 'reenviado_financiera', 'rechazado_financiera', 'enviado_contabilidad']);
             case 'Contabilidad':
                 return in_array($orden->estado, ['enviado_contabilidad', 'cheque_generado']);
             case 'Caja':
@@ -267,7 +267,8 @@ class TrackingController extends Controller
         $transiciones = [
             'pendiente_tesoreria' => ['enviado_financiera'],
             'enviado_financiera' => ['enviado_contabilidad', 'rechazado_financiera'],
-            'rechazado_financiera' => ['enviado_financiera'],
+            'rechazado_financiera' => ['reenviado_financiera'],
+            'reenviado_financiera' => ['enviado_contabilidad', 'rechazado_financiera'],
             'enviado_contabilidad' => ['enviado_presupuesto', 'rechazado_contabilidad'],
             'rechazado_contabilidad' => ['enviado_contabilidad'],
             'enviado_presupuesto' => ['enviado_financiera_cheque', 'rechazado_presupuesto'],
@@ -286,6 +287,7 @@ class TrackingController extends Controller
     {
         $mapa = [
             'enviado_financiera' => 'envio_financiera',
+            'reenviado_financiera' => 'reenvio_financiera',
             'rechazado_financiera' => 'rechazo_financiera',
             'enviado_contabilidad' => 'envio_contabilidad',
             'rechazado_contabilidad' => 'rechazo_contabilidad',
@@ -307,10 +309,12 @@ class TrackingController extends Controller
         $estados = [];
 
         if ($role === 'Tesorería' && in_array($estadoActual, ['pendiente_tesoreria', 'rechazado_financiera'])) {
-            $estados[] = ['value' => 'enviado_financiera', 'label' => 'Enviar a Financiera'];
+            $target = $estadoActual === 'rechazado_financiera' ? 'reenviado_financiera' : 'enviado_financiera';
+            $label = $estadoActual === 'rechazado_financiera' ? 'Reenviar a Financiera' : 'Enviar a Financiera';
+            $estados[] = ['value' => $target, 'label' => $label];
         }
 
-        if ($role === 'Financiera' && $estadoActual === 'enviado_financiera') {
+        if ($role === 'Financiera' && in_array($estadoActual, ['enviado_financiera', 'reenviado_financiera'])) {
             $estados[] = ['value' => 'enviado_contabilidad', 'label' => 'Aprobar a Contabilidad'];
             $estados[] = ['value' => 'rechazado_financiera', 'label' => 'Rechazar Orden'];
         }

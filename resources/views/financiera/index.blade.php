@@ -18,6 +18,11 @@
                     <p>{{ session('error') }}</p>
                 </div>
             @endif
+            @if (session('warning'))
+                <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4" role="alert">
+                    <p>{{ session('warning') }}</p>
+                </div>
+            @endif
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
@@ -42,6 +47,7 @@
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Beneficiario</th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Concepto</th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                                     </tr>
                                 </thead>
@@ -55,6 +61,17 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $orden->beneficiario_nombre }}</td>
                                             <td class="px-6 py-4 text-sm text-gray-500">{{ Str::limit($orden->concepto, 50) }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{{ number_format($orden->neto_pagar, 2) }} Bs.</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                                @if($orden->estado === 'reenviado_financiera')
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                        Reenviada
+                                                    </span>
+                                                @else
+                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                        Nueva
+                                                    </span>
+                                                @endif
+                                            </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                 <div class="flex gap-2">
                                                     <a href="{{ route('ordenes-pago.show', $orden) }}" class="bg-primary-100 hover:bg-primary-200 text-primary-800 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors">
@@ -73,7 +90,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">No hay órdenes pendientes de revisión financiera.</td>
+                                            <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">No hay órdenes pendientes de revisión financiera.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -101,11 +118,14 @@
                 <form id="form-rechazo" method="POST" class="mt-2 text-left">
                     @csrf
                     <input type="hidden" name="orden_id" id="rechazo_orden_id">
-                    <textarea name="motivo_rechazo" rows="4" class="shadow-sm focus:ring-primary-500 focus:border-primary-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md" required placeholder="Explique el motivo del rechazo..."></textarea>
-        <div class="flex justify-end gap-2 mt-4">
-            <button type="button" onclick="cerrarModalRechazo()" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">Cancelar</button>
-            <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Rechazar Orden</button>
-        </div>
+                    <textarea name="motivo_rechazo" rows="4" class="shadow-sm focus:ring-primary-500 focus:border-primary-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md" required placeholder="Explique el motivo del rechazo..." minlength="10"></textarea>
+                    @if ($errors->has('motivo_rechazo'))
+                        <p class="mt-1 text-sm text-red-600">{{ $errors->first('motivo_rechazo') }}</p>
+                    @endif
+                    <div class="flex justify-end gap-2 mt-4">
+                        <button type="button" onclick="cerrarModalRechazo()" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">Cancelar</button>
+                        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Rechazar Orden</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -145,6 +165,5 @@
             const checked = document.querySelectorAll('.checkbox-item:checked');
             document.getElementById('btn-masivo').classList.toggle('hidden', checked.length === 0);
         }
-        </script>
-    </div>
+    </script>
 </x-app-layout>

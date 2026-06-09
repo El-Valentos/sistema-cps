@@ -84,11 +84,11 @@
                             <label for="select-all-cheques" class="text-sm text-gray-600 cursor-pointer">Seleccionar todos</label>
                         </div>
                         <div class="flex items-center gap-3">
-                            <button type="submit" id="btn-enviar-cheques" class="hidden bg-primary-900 hover:bg-primary-950 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                                <i class="fas fa-paper-plane mr-1"></i> Enviar a Presupuesto
-                            </button>
                             <button type="button" id="btn-imprimir-cheques" class="hidden bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                                <i class="fas fa-print mr-1"></i> Imprimir (máx 4)
+                                <i class="fas fa-print mr-1"></i> Imprimir Seleccionados
+                            </button>
+                            <button type="submit" formaction="{{ route('cheques.enviar-masivo') }}" id="btn-enviar-cheques" class="hidden bg-primary-900 hover:bg-primary-950 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                <i class="fas fa-paper-plane mr-1"></i> Enviar a Presupuesto
                             </button>
                         </div>
                     </div>
@@ -170,16 +170,16 @@
         document.getElementById('btn-imprimir-cheques').addEventListener('click', function() {
             const checked = document.querySelectorAll('.checkbox-cheque:checked');
             if (checked.length === 0) return;
-            if (checked.length > 4) {
-                alert('Solo puede imprimir hasta 4 cheques a la vez');
-                return;
-            }
             document.getElementById('form-cheques').action = '{{ route("cheques.imprimir-seleccionados") }}';
             document.getElementById('form-cheques').submit();
         });
 
-        document.getElementById('btn-enviar-cheques').addEventListener('click', function() {
-            document.getElementById('form-cheques').action = '{{ route("cheques.enviar-masivo") }}';
+        document.getElementById('btn-enviar-cheques').addEventListener('click', function(e) {
+            const checked = document.querySelectorAll('.checkbox-cheque:checked');
+            if (checked.length === 0) {
+                e.preventDefault();
+                return;
+            }
         });
     </script>
 </x-app-layout>

@@ -311,14 +311,10 @@ class ChequeController extends Controller
 
     public function imprimirSeleccionados(Request $request)
     {
-        $ids = $request->input('cheques_print', []);
+        $ids = $request->input('cheques', []);
         
         if (empty($ids)) {
             return back()->with('warning', 'No se seleccionaron cheques para imprimir');
-        }
-
-        if (count($ids) > 4) {
-            return back()->with('error', 'Solo se pueden imprimir hasta 4 cheques a la vez');
         }
 
         $cheques = Cheque::whereIn('id', $ids)
@@ -328,6 +324,9 @@ class ChequeController extends Controller
         foreach ($cheques as $cheque) {
             if (!$cheque->numero_cheque) {
                 return back()->with('error', "El cheque de la orden {$cheque->ordenPago->numero_orden} no tiene número de cheque asignado");
+            }
+            if ($cheque->estado === 'emitido') {
+                $cheque->update(['estado' => 'impreso']);
             }
         }
 

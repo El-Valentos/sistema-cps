@@ -5,15 +5,15 @@
     <title>Cheque N° {{ $cheque->numero_cheque }}</title>
     <style>
         body { font-family: DejaVu Sans, sans-serif; font-size: 11px; margin: 0; padding: 15px; }
-        .cheque-box { border: 2px solid #374151; padding: 15px; max-width: 720px; }
+        .cheque-box { padding: 15px; max-width: 720px; }
         .cheque-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
         .banco { font-size: 16px; font-weight: bold; color: #1e3a8a; }
-        .numero { font-size: 18px; font-weight: bold; color: #374151; border: 1px solid #374151; padding: 5px 15px; }
+        .numero { font-size: 18px; font-weight: bold; color: #374151; padding: 5px 15px; }
         .row { display: flex; align-items: baseline; margin-bottom: 10px; gap: 10px; }
         .label { font-size: 9px; color: #6b7280; white-space: nowrap; }
-        .value { border-bottom: 1px solid #374151; flex: 1; padding: 2px 5px; font-weight: bold; }
-        .monto-box { border: 2px solid #374151; padding: 8px; text-align: right; font-size: 16px; font-weight: bold; margin: 10px 0; }
-        .literal { border-bottom: 1px solid #374151; padding: 5px; margin: 10px 0; font-style: italic; }
+        .value { flex: 1; padding: 2px 5px; font-weight: bold; }
+        .monto-box { padding: 8px; text-align: right; font-size: 16px; font-weight: bold; margin: 10px 0; }
+        .literal { padding: 5px; margin: 10px 0; font-style: italic; }
     </style>
 </head>
 <body>
@@ -27,7 +27,7 @@
 
         <div class="row">
             <span class="label">FECHA:</span>
-            <span class="value">{{ $cheque->fecha_emision?->format('d/m/Y') }}</span>
+            <span class="value">{{ $cheque->fecha_emision?->format('d') }} de {{ ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'][$cheque->fecha_emision->format('n') - 1] }} de {{ $cheque->fecha_emision?->format('Y') }}</span>
         </div>
 
         <div class="row">
@@ -58,7 +58,7 @@
             </div>
         </div>
 
-        <div style="text-align:center; font-size:8px; color:#9ca3af; margin-top:10px; border-top:1px solid #e5e7eb; padding-top:5px;">
+        <div style="text-align:center; font-size:8px; color:#9ca3af; margin-top:10px; padding-top:5px;">
             Generado por Sistema CPS — {{ now()->format('d/m/Y H:i') }}
         </div>
     </div>

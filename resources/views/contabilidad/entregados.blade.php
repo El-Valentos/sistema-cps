@@ -36,7 +36,7 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-bold">{{ number_format($orden->neto_pagar, 2) }} Bs.</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $orden->fecha_cierre ? \Carbon\Carbon::parse($orden->fecha_cierre)->format('d/m/Y') : '-' }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                            <form action="{{ route('contabilidad.archivar', $orden) }}" method="POST" class="inline">
+                                            <form action="{{ route('archivos.archivar', $orden) }}" method="POST" class="inline">
                                                 @csrf
                                                 <button type="submit" class="bg-primary-800 hover:bg-primary-900 text-white px-3 py-1 rounded text-xs font-bold" onclick="return confirm('¿Seguro que desea archivar esta orden definitivamente?')">
                                                     📁 Archivar

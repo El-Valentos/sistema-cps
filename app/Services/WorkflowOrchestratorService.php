@@ -68,6 +68,10 @@ class WorkflowOrchestratorService
             $estados[] = ['value' => 'enviado_contabilidad', 'label' => 'Reenviar a Contabilidad'];
         }
 
+        if ($role === 'Contabilidad' && $estadoActual === 'rechazado_presupuesto') {
+            $estados[] = ['value' => 'enviado_presupuesto', 'label' => 'Reenviar a Presupuesto'];
+        }
+
         if ($role === 'Presupuesto' && $estadoActual === 'enviado_presupuesto') {
             $estados[] = ['value' => 'enviado_financiera_cheque', 'label' => 'Aprobar y enviar a Financiera'];
             $estados[] = ['value' => 'rechazado_presupuesto', 'label' => 'Rechazar Orden'];

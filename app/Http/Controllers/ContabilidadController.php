@@ -20,7 +20,7 @@ class ContabilidadController extends Controller
 
     public function index()
     {
-        $ordenes = OrdenPago::where('estado', 'enviado_contabilidad')
+        $ordenes = OrdenPago::whereIn('estado', ['enviado_contabilidad', 'rechazado_presupuesto'])
             ->with(['beneficiario', 'categoriaGasto', 'creador'])
             ->orderBy('created_at', 'desc')
             ->paginate(15);

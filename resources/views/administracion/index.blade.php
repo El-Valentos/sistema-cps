@@ -56,7 +56,7 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-bold">{{ number_format($cheque->monto, 2) }} Bs.</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm">
                                                 <div class="flex gap-2">
-                                                    <a href="{{ route('cheques.show', $cheque) }}" class="bg-primary-100 hover:bg-primary-200 text-primary-800 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors">
+                                                    <a href="{{ route('administracion.show', $cheque) }}" class="bg-primary-100 hover:bg-primary-200 text-primary-800 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors">
                                                         <i class="fas fa-eye mr-1"></i> Ver
                                                     </a>
                                                     

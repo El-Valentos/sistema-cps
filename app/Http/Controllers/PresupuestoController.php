@@ -18,9 +18,9 @@ class PresupuestoController extends Controller
 
     public function index()
     {
-        // Presupuesto ve cheques recién generados
+        // Presupuesto ve cheques recién generados y rechazados por Financiera
         $cheques = Cheque::whereHas('ordenPago', function ($query) {
-                $query->where('estado', 'enviado_presupuesto');
+                $query->whereIn('estado', ['enviado_presupuesto', 'rechazado_financiera_cheque']);
             })
             ->with(['ordenPago.beneficiario', 'ordenPago.categoriaGasto'])
             ->orderBy('created_at', 'desc')
@@ -41,12 +41,13 @@ class PresupuestoController extends Controller
             DB::beginTransaction();
 
             $ordenPago = $cheque->ordenPago;
+            $estadoAnterior = $ordenPago->estado;
             $ordenPago->update(['estado' => 'enviado_financiera_cheque']);
 
             $this->trackingService->registrarEvento(
                 $ordenPago,
                 'aprobacion_presupuesto',
-                'enviado_presupuesto',
+                $estadoAnterior,
                 'enviado_financiera_cheque',
                 'Cheque aprobado por Presupuesto y enviado a Financiera'
             );

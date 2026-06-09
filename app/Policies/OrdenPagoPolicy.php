@@ -30,7 +30,9 @@ class OrdenPagoPolicy
     public function update(User $user, OrdenPago $ordenPago)
     {
         $role = $user->roles->first()->name ?? null;
-        return $role === 'Tesorería' && in_array($ordenPago->estado, ['pendiente_tesoreria', 'rechazado_financiera']);
+        if ($role === 'Tesorería' && in_array($ordenPago->estado, ['pendiente_tesoreria', 'rechazado_financiera'])) return true;
+        if ($role === 'Financiera' && in_array($ordenPago->estado, ['rechazado_contabilidad', 'rechazado_administracion'])) return true;
+        return false;
     }
     
     public function delete(User $user, OrdenPago $ordenPago)
@@ -52,9 +54,11 @@ class OrdenPagoPolicy
     {
         $role = $user->roles->first()->name ?? null;
         if ($role === 'Contabilidad' && $ordenPago->estado === 'cheque_generado') return true;
+        if ($role === 'Contabilidad' && $ordenPago->estado === 'rechazado_presupuesto') return true;
         if ($role === 'Caja' && in_array($ordenPago->estado, ['cheque_generado', 'en_caja'])) return true;
         if ($role === 'Super Admin' && $ordenPago->estado === 'entregado') return true;
-        if ($role === 'Financiera' && in_array($ordenPago->estado, ['enviado_financiera', 'enviado_financiera_cheque'])) return true;
+        if ($role === 'Financiera' && in_array($ordenPago->estado, ['enviado_financiera', 'enviado_financiera_cheque', 'rechazado_contabilidad', 'rechazado_administracion'])) return true;
+        if ($role === 'Presupuesto' && $ordenPago->estado === 'rechazado_financiera_cheque') return true;
         if ($role === 'Tesorería' && $ordenPago->estado === 'rechazado_financiera') return true;
         return false;
     }

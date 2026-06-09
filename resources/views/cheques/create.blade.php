@@ -162,7 +162,7 @@
                                 <i class="fas fa-save mr-2"></i>Generar Cheque
                             </button>
                             
-                            @if($ordenPreseleccionada)
+                            @if($ordenPreseleccionada && auth()->user()->hasRole('Contabilidad'))
                             <button type="button" onclick="abrirModalRechazo()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors">
                                 <i class="fas fa-times mr-2"></i>Rechazar Orden
                             </button>

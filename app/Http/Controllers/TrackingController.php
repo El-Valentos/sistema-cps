@@ -232,11 +232,11 @@ class TrackingController extends Controller
         if ($userRole === 'Caja') {
             $query->whereIn('estado', ['en_caja']);
         } elseif ($userRole === 'Contabilidad') {
-            $query->whereIn('estado', ['enviado_contabilidad', 'rechazado_contabilidad']);
+            $query->whereIn('estado', ['enviado_contabilidad', 'rechazado_contabilidad', 'rechazado_presupuesto', 'enviado_presupuesto']);
         } elseif ($userRole === 'Presupuesto') {
-            $query->whereIn('estado', ['enviado_presupuesto', 'rechazado_presupuesto']);
+            $query->whereIn('estado', ['enviado_presupuesto', 'rechazado_presupuesto', 'rechazado_financiera_cheque']);
         } elseif ($userRole === 'Financiera') {
-            $query->whereIn('estado', ['enviado_financiera', 'reenviado_financiera', 'enviado_financiera_cheque', 'rechazado_financiera']);
+            $query->whereIn('estado', ['enviado_financiera', 'reenviado_financiera', 'enviado_financiera_cheque', 'rechazado_financiera', 'rechazado_contabilidad', 'rechazado_administracion']);
         } elseif ($userRole === 'Administración') {
             $query->whereIn('estado', ['enviado_administracion', 'rechazado_administracion']);
         } elseif ($userRole === 'Tesorería') {
@@ -252,9 +252,9 @@ class TrackingController extends Controller
             case 'Tesorería':
                 return in_array($orden->estado, ['pendiente_tesoreria', 'enviado_financiera', 'reenviado_financiera', 'rechazado_financiera']) || $orden->creado_por === auth()->id();
             case 'Financiera':
-                return in_array($orden->estado, ['enviado_financiera', 'reenviado_financiera', 'rechazado_financiera', 'enviado_contabilidad']);
+                return in_array($orden->estado, ['enviado_financiera', 'reenviado_financiera', 'rechazado_financiera', 'enviado_contabilidad', 'rechazado_contabilidad', 'rechazado_administracion']);
             case 'Contabilidad':
-                return in_array($orden->estado, ['enviado_contabilidad', 'cheque_generado']);
+                return in_array($orden->estado, ['enviado_contabilidad', 'cheque_generado', 'rechazado_presupuesto', 'enviado_presupuesto']);
             case 'Caja':
                 return in_array($orden->estado, ['cheque_generado', 'en_caja', 'entregado']);
             default:
@@ -274,6 +274,7 @@ class TrackingController extends Controller
             'enviado_presupuesto' => ['enviado_financiera_cheque', 'rechazado_presupuesto'],
             'rechazado_presupuesto' => ['enviado_presupuesto'],
             'enviado_financiera_cheque' => ['enviado_administracion', 'rechazado_financiera'],
+            'rechazado_financiera_cheque' => ['enviado_financiera_cheque'],
             'enviado_administracion' => ['en_caja', 'rechazado_administracion'],
             'rechazado_administracion' => ['enviado_administracion'],
             'en_caja' => ['entregado'],
@@ -323,8 +324,8 @@ class TrackingController extends Controller
             $estados[] = ['value' => 'enviado_presupuesto', 'label' => 'Enviar a Presupuesto'];
         }
 
-        if ($role === 'Contabilidad' && $estadoActual === 'rechazado_contabilidad') {
-            $estados[] = ['value' => 'enviado_contabilidad', 'label' => 'Reenviar a Contabilidad'];
+        if ($role === 'Contabilidad' && $estadoActual === 'rechazado_presupuesto') {
+            $estados[] = ['value' => 'enviado_presupuesto', 'label' => 'Reenviar a Presupuesto'];
         }
 
         if ($role === 'Presupuesto' && $estadoActual === 'enviado_presupuesto') {
@@ -332,9 +333,21 @@ class TrackingController extends Controller
             $estados[] = ['value' => 'rechazado_presupuesto', 'label' => 'Rechazar Orden'];
         }
 
+        if ($role === 'Presupuesto' && $estadoActual === 'rechazado_financiera_cheque') {
+            $estados[] = ['value' => 'enviado_financiera_cheque', 'label' => 'Reenviar a Financiera'];
+        }
+
+        if ($role === 'Financiera' && $estadoActual === 'rechazado_contabilidad') {
+            $estados[] = ['value' => 'enviado_contabilidad', 'label' => 'Reenviar a Contabilidad'];
+        }
+
         if ($role === 'Financiera' && $estadoActual === 'enviado_financiera_cheque') {
             $estados[] = ['value' => 'enviado_administracion', 'label' => 'Aprobar a Administración'];
-            $estados[] = ['value' => 'rechazado_financiera', 'label' => 'RechazarCheque'];
+            $estados[] = ['value' => 'rechazado_financiera', 'label' => 'Rechazar Cheque'];
+        }
+
+        if ($role === 'Financiera' && $estadoActual === 'rechazado_administracion') {
+            $estados[] = ['value' => 'enviado_administracion', 'label' => 'Reenviar a Administración'];
         }
 
         if ($role === 'Administración' && $estadoActual === 'enviado_administracion') {

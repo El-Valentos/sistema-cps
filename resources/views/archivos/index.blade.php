@@ -41,7 +41,7 @@
                                                 <a href="{{ route('ordenes-pago.show', $orden) }}" class="bg-primary-100 hover:bg-primary-200 text-primary-800 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors">
                                                     <i class="fas fa-eye mr-1"></i> Ver Detalle
                                                 </a>
-                                                <a href="{{ route('cheques.show', $orden->cheque) }}" class="bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors">
+                                                <a href="{{ route('ordenes-pago.show', $orden) }}" class="bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors">
                                                     <i class="fas fa-money-check mr-1"></i> Ver Cheque
                                                 </a>
                                                 <a href="{{ url('/archivos/' . $orden->id . '/archivar') }}" 

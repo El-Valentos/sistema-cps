@@ -92,7 +92,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // ==================== CHEQUES ====================
-    Route::middleware(['role:Contabilidad|Caja|Super Admin'])->prefix('cheques')->name('cheques.')->group(function () {
+    Route::middleware(['role:Contabilidad|Caja|Financiera|Super Admin'])->prefix('cheques')->name('cheques.')->group(function () {
         Route::get('/', [ChequeController::class, 'index'])->name('index');
         Route::get('/buscar', [ChequeController::class, 'buscar'])->name('buscar');
         Route::post('/buscar', [ChequeController::class, 'buscarPost'])->name('buscarPost');

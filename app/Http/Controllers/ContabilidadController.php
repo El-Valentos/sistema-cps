@@ -33,23 +33,9 @@ class ContabilidadController extends Controller
         try {
             DB::beginTransaction();
 
-            // Generar cheque automáticamente (hilo seguro)
-            $numeroCheque = DB::transaction(function () {
-                $ultimoCheque = Cheque::whereYear('created_at', date('Y'))
-                    ->lockForUpdate()
-                    ->orderBy('id', 'desc')
-                    ->first();
-                
-                $ultimoNumero = 0;
-                if ($ultimoCheque && preg_match('/CH-\d{4}-(\d+)$/', $ultimoCheque->numero_cheque, $matches)) {
-                    $ultimoNumero = intval($matches[1]);
-                }
-                
-                return 'CH-' . date('Y') . '-' . str_pad($ultimoNumero + 1, 5, '0', STR_PAD_LEFT);
-            });
             $cheque = Cheque::create([
                 'orden_pago_id'       => $ordenPago->id,
-                'numero_cheque'       => $numeroCheque,
+                'numero_cheque'       => null,
                 'gestion'             => date('Y'),
                 'banco'               => 'A DESIGNAR',
                 'fecha_emision'       => now()->toDateString(),
@@ -72,13 +58,13 @@ class ContabilidadController extends Controller
                 'aprobacion_contabilidad',
                 'enviado_contabilidad',
                 'enviado_presupuesto',
-                'Orden aprobada por Contabilidad. Cheque generado: ' . $cheque->numero_cheque
+                'Orden aprobada por Contabilidad. Cheque generado (N° pendiente)'
             );
 
             DB::commit();
 
             return redirect()->route('contabilidad.index')
-                ->with('success', 'Orden aprobada. Cheque ' . $cheque->numero_cheque . ' generado exitosamente');
+                ->with('warning', 'Orden aprobada. Debe asignar un número de cheque antes de imprimir o enviar a Presupuesto');
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -259,23 +245,60 @@ class ContabilidadController extends Controller
 
     public function aprobarMasivo(Request $request)
     {
-        $ids = $request->input('ordenes', []);
-        if (empty($ids)) return back()->with('warning', 'No se seleccionaron órdenes');
+        if (!$request->has('ordenes') || empty($request->ordenes)) {
+            return redirect()->back()->with('warning', 'No se seleccionaron órdenes');
+        }
 
         try {
             DB::beginTransaction();
-            $ordenes = OrdenPago::whereIn('id', $ids)->where('estado', 'enviado_contabilidad')->get();
+
+            $ordenes = OrdenPago::whereIn('id', $request->ordenes)
+                ->where('estado', 'enviado_contabilidad')
+                ->get();
+
             $cont = 0;
+            foreach ($ordenes as $ordenPago) {
+                $cheque = Cheque::create([
+                    'orden_pago_id'       => $ordenPago->id,
+                    'numero_cheque'       => null,
+                    'gestion'             => date('Y'),
+                    'banco'               => 'A DESIGNAR',
+                    'fecha_emision'       => now()->toDateString(),
+                    'fecha_pago'          => now()->addDays(30)->toDateString(),
+                    'monto'               => $ordenPago->neto_pagar,
+                    'monto_literal'       => $this->pdfService->convertirNumeroALiteral($ordenPago->neto_pagar),
+                    'emitido_por'         => auth()->id(),
+                    'fecha_emision_sistema' => now(),
+                    'estado'              => 'emitido',
+                ]);
 
-            $ultimoCheque = Cheque::whereYear('created_at', date('Y'))
-                ->lockForUpdate()
-                ->orderBy('id', 'desc')
-                ->first();
+                $ordenPago->update([
+                    'estado' => 'enviado_presupuesto',
+                    'aprobado_por' => auth()->id(),
+                    'fecha_aprobacion' => now(),
+                ]);
 
-            $ultimoNumero = 0;
-            if ($ultimoCheque && preg_match('/CH-\d{4}-(\d+)$/', $ultimoCheque->numero_cheque, $matches)) {
-                $ultimoNumero = intval($matches[1]);
+                $this->trackingService->registrarEvento(
+                    $ordenPago,
+                    'aprobacion_contabilidad',
+                    'enviado_contabilidad',
+                    'enviado_presupuesto',
+                    "Orden aprobada masivamente por Contabilidad"
+                );
+
+                $cont++;
             }
+
+            DB::commit();
+
+            return redirect()->route('contabilidad.index')
+                ->with('warning', "{$cont} órdenes aprobadas. Debe asignar número de cheque a cada una antes de imprimir o enviar a Presupuesto.");
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->with('error', 'Error al aprobar órdenes: ' . $e->getMessage());
+        }
+    }
 
             foreach ($ordenes as $orden) {
                 $ultimoNumero++;

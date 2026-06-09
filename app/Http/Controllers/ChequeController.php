@@ -78,20 +78,9 @@ class ChequeController extends Controller
                 throw new \Exception('La orden de pago no está en estado para generar cheque');
             }
 
-            $ultimoCheque = Cheque::whereYear('created_at', date('Y'))
-                ->lockForUpdate()
-                ->orderBy('id', 'desc')
-                ->first();
-
-            $ultimoNumero = 0;
-            if ($ultimoCheque && preg_match('/CH-\d{4}-(\d+)$/', $ultimoCheque->numero_cheque, $matches)) {
-                $ultimoNumero = intval($matches[1]);
-            }
-            $numeroCheque = 'CH-' . date('Y') . '-' . str_pad($ultimoNumero + 1, 5, '0', STR_PAD_LEFT);
-
             $cheque = Cheque::create([
                 'orden_pago_id' => $ordenPago->id,
-                'numero_cheque' => $numeroCheque,
+                'numero_cheque' => null,
                 'gestion' => date('Y'),
                 'banco' => $request->banco,
                 'numero_cuenta' => $request->numero_cuenta,
@@ -111,14 +100,14 @@ class ChequeController extends Controller
                 'generacion_cheque',
                 'enviado_contabilidad',
                 'enviado_presupuesto',
-                "Cheque N° {$numeroCheque} generado y enviado a Presupuesto",
-                ['cheque_id' => $cheque->id, 'numero_cheque' => $numeroCheque]
+                "Cheque generado (N° pendiente) y enviado a Presupuesto",
+                ['cheque_id' => $cheque->id]
             );
 
             DB::commit();
 
             return redirect()->route('cheques.show', $cheque)
-                ->with('success', 'Cheque generado. Verifique los datos antes de confirmar.');
+                ->with('warning', 'Cheque generado. Debe asignar un número de cheque antes de imprimir o enviar a Presupuesto.');
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -160,6 +149,10 @@ class ChequeController extends Controller
 
     public function confirmar(Cheque $cheque)
     {
+        if (!$cheque->numero_cheque) {
+            return back()->with('error', 'Debe asignar un número de cheque antes de confirmar');
+        }
+
         try {
             DB::beginTransaction();
 
@@ -202,6 +195,12 @@ class ChequeController extends Controller
             $cheques = Cheque::whereIn('id', $ids)
                 ->where('estado', 'emitido')
                 ->get();
+            
+            foreach ($cheques as $cheque) {
+                if (!$cheque->numero_cheque) {
+                    throw new \Exception("El cheque de la orden {$cheque->ordenPago->numero_orden} no tiene número de cheque asignado");
+                }
+            }
             
             $cont = 0;
             foreach ($cheques as $cheque) {
@@ -285,12 +284,57 @@ class ChequeController extends Controller
 
     public function generarPDF(Cheque $cheque)
     {
+        if (!$cheque->numero_cheque) {
+            return redirect()->route('cheques.show', $cheque)
+                ->with('error', 'Debe asignar un número de cheque antes de imprimir');
+        }
+
         $cheque->load(['ordenPago.beneficiario', 'ordenPago.liquidador']);
 
         $pdf = PDF::loadView('dpfs.cheque', compact('cheque'));
         $pdf->setPaper('letter', 'portrait');
 
         return $pdf->stream("Cheque_{$cheque->numero_cheque}.pdf");
+    }
+
+    public function asignarNumero(Request $request, Cheque $cheque)
+    {
+        $request->validate([
+            'numero_cheque' => 'required|string|max:20|unique:cheques,numero_cheque,' . $cheque->id,
+        ]);
+
+        $cheque->update(['numero_cheque' => $request->numero_cheque]);
+
+        return redirect()->route('cheques.show', $cheque)
+            ->with('success', 'Número de cheque asignado correctamente');
+    }
+
+    public function imprimirSeleccionados(Request $request)
+    {
+        $ids = $request->input('cheques_print', []);
+        
+        if (empty($ids)) {
+            return back()->with('warning', 'No se seleccionaron cheques para imprimir');
+        }
+
+        if (count($ids) > 4) {
+            return back()->with('error', 'Solo se pueden imprimir hasta 4 cheques a la vez');
+        }
+
+        $cheques = Cheque::whereIn('id', $ids)
+            ->with(['ordenPago.beneficiario', 'ordenPago.liquidador', 'emisor'])
+            ->get();
+
+        foreach ($cheques as $cheque) {
+            if (!$cheque->numero_cheque) {
+                return back()->with('error', "El cheque de la orden {$cheque->ordenPago->numero_orden} no tiene número de cheque asignado");
+            }
+        }
+
+        $pdf = PDF::loadView('dpfs.cheques-multiples', compact('cheques'));
+        $pdf->setPaper('letter', 'portrait');
+
+        return $pdf->stream("Cheques_seleccionados.pdf");
     }
 
     public function anular(Cheque $cheque, Request $request)

@@ -3,10 +3,29 @@
     <div class="py-6 max-w-3xl">
         <div class="flex items-center gap-3 mb-6">
             <a href="{{ route('cheques.index') }}" class="text-gray-400 hover:text-gray-600"><i class="fas fa-arrow-left"></i></a>
-            <h2 class="text-xl font-bold text-gray-800">Cheque N° {{ $cheque->numero_cheque }}</h2>
+            <h2 class="text-xl font-bold text-gray-800">Cheque {{ $cheque->numero_cheque ? "N° {$cheque->numero_cheque}" : '(N° pendiente)' }}</h2>
             @php $c=['emitido'=>'blue','impreso'=>'indigo','anulado'=>'red'][$cheque->estado]??'gray'; @endphp
             <span class="px-3 py-1 rounded-full text-sm bg-{{ $c }}-100 text-{{ $c }}-700">{{ ucfirst($cheque->estado) }}</span>
         </div>
+
+        @if(!$cheque->numero_cheque)
+        <div class="bg-red-50 border-2 border-red-400 rounded-xl p-5 mb-6">
+            <h3 class="text-sm font-bold text-red-700 mb-3"><i class="fas fa-exclamation-triangle mr-2"></i>Asignar Número de Cheque</h3>
+            <form method="POST" action="{{ route('cheques.asignar-numero', $cheque) }}" class="flex items-end gap-3">
+                @csrf
+                @method('PUT')
+                <div class="flex-1">
+                    <label class="block text-xs text-red-600 mb-1 font-medium">Número de Cheque</label>
+                    <input type="text" name="numero_cheque" placeholder="Ej: 12345" required
+                        class="w-full border-2 border-red-400 rounded-lg px-3 py-2 text-sm focus:border-red-600 focus:ring focus:ring-red-200">
+                    @error('numero_cheque') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                </div>
+                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                    <i class="fas fa-save mr-1"></i>Guardar
+                </button>
+            </form>
+        </div>
+        @endif
         <div class="bg-white rounded-xl shadow-sm p-6 space-y-4 mb-6">
             <div class="grid grid-cols-2 gap-4 text-sm">
                 <div><span class="text-gray-500">Fecha Emisión:</span> <span class="font-medium">{{ $cheque->fecha_emision?->format('d/m/Y') }}</span></div>

@@ -76,16 +76,21 @@
                     </button>
                 </form>
 
-                <form id="form-enviar-masivo-cheques" method="POST" action="{{ route('cheques.enviar-masivo') }}">
+                <form id="form-cheques" method="POST" action="{{ route('cheques.enviar-masivo') }}">
                     @csrf
                     <div class="p-3 bg-gray-50 border-b flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <input type="checkbox" id="select-all-cheques" class="w-4 h-4 text-primary-800 rounded focus:ring-primary-500">
                             <label for="select-all-cheques" class="text-sm text-gray-600 cursor-pointer">Seleccionar todos</label>
                         </div>
-                        <button type="submit" id="btn-enviar-cheques" class="hidden bg-primary-900 hover:bg-primary-950 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                            <i class="fas fa-paper-plane mr-1"></i> Enviar Seleccionados a Presupuesto
-                        </button>
+                        <div class="flex items-center gap-3">
+                            <button type="submit" id="btn-enviar-cheques" class="hidden bg-primary-900 hover:bg-primary-950 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                <i class="fas fa-paper-plane mr-1"></i> Enviar a Presupuesto
+                            </button>
+                            <button type="button" id="btn-imprimir-cheques" class="hidden bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                <i class="fas fa-print mr-1"></i> Imprimir (máx 4)
+                            </button>
+                        </div>
                     </div>
 
                     <table class="w-full text-sm">
@@ -109,7 +114,7 @@
                                     <input type="checkbox" name="cheques[]" value="{{ $ch->id }}" class="w-4 h-4 text-primary-800 rounded focus:ring-primary-500 checkbox-cheque">
                                     @endif
                                 </td>
-                                <td class="px-4 py-3 font-mono font-bold text-gray-800">{{ $ch->numero_cheque }}</td>
+                                <td class="px-4 py-3 font-mono font-bold {{ $ch->numero_cheque ? 'text-gray-800' : 'text-red-600' }}">{{ $ch->numero_cheque ?? 'Pendiente' }}</td>
                                 <td class="px-4 py-3 font-medium">{{ $ch->ordenPago->beneficiario_nombre ?? '-' }}</td>
                                 <td class="px-4 py-3 text-gray-600">{{ $ch->fecha_emision?->format('d/m/Y') }}</td>
                                 <td class="px-4 py-3 text-right font-semibold text-green-700">Bs. {{ number_format($ch->monto,2) }}</td>
@@ -159,6 +164,22 @@
         function toggleBtnCheques() {
             const checked = document.querySelectorAll('.checkbox-cheque:checked');
             document.getElementById('btn-enviar-cheques').classList.toggle('hidden', checked.length === 0);
+            document.getElementById('btn-imprimir-cheques').classList.toggle('hidden', checked.length === 0);
         }
+
+        document.getElementById('btn-imprimir-cheques').addEventListener('click', function() {
+            const checked = document.querySelectorAll('.checkbox-cheque:checked');
+            if (checked.length === 0) return;
+            if (checked.length > 4) {
+                alert('Solo puede imprimir hasta 4 cheques a la vez');
+                return;
+            }
+            document.getElementById('form-cheques').action = '{{ route("cheques.imprimir-seleccionados") }}';
+            document.getElementById('form-cheques').submit();
+        });
+
+        document.getElementById('btn-enviar-cheques').addEventListener('click', function() {
+            document.getElementById('form-cheques').action = '{{ route("cheques.enviar-masivo") }}';
+        });
     </script>
 </x-app-layout>

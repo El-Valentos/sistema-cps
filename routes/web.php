@@ -101,8 +101,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{cheque}', [ChequeController::class, 'show'])->name('show');
         Route::get('/{cheque}/editar', [ChequeController::class, 'edit'])->name('editar');
         Route::put('/{cheque}', [ChequeController::class, 'update'])->name('update');
+        Route::put('/{cheque}/numero', [ChequeController::class, 'asignarNumero'])->name('asignar-numero');
         Route::post('/{cheque}/confirmar', [ChequeController::class, 'confirmar'])->name('confirmar');
         Route::post('/enviar-masivo', [ChequeController::class, 'enviarMasivo'])->name('enviar-masivo');
+        Route::post('/imprimir-seleccionados', [ChequeController::class, 'imprimirSeleccionados'])->name('imprimir-seleccionados');
         Route::get('/{cheque}/imprimir', [ChequeController::class, 'imprimir'])->name('imprimir');
         Route::get('/{cheque}/pdf', [ChequeController::class, 'generarPDF'])->name('pdf');
         Route::post('/{cheque}/anular', [ChequeController::class, 'anular'])->name('anular');

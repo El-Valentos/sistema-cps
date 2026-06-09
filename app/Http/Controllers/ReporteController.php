@@ -26,10 +26,24 @@ class ReporteController extends Controller
         return view('reportes.index', compact('beneficiarios', 'categorias'));
     }
 
+    public function consolidado()
+    {
+        $reportes = $this->reporteService->resumenConsolidado();
+        return view('reportes.consolidado', compact('reportes'));
+    }
+
+    public function exportarConsolidadoPDF()
+    {
+        $reportes = $this->reporteService->resumenConsolidado();
+        $pdf = Pdf::loadView('reportes.pdf.consolidado', compact('reportes'));
+        $pdf->setPaper('legal', 'landscape');
+        return $pdf->download("reporte_consolidado_" . date('Ymd_His') . ".pdf");
+    }
+
     public function generar(Request $request)
     {
         $request->validate([
-            'tipo_reporte' => 'required|in:ordenes,cheques,beneficiarios,resoluciones,devoluciones',
+            'tipo_reporte' => 'required|in:ordenes,cheques,beneficiarios',
             'fecha_desde'  => 'required|date',
             'fecha_hasta'  => 'required|date|after_or_equal:fecha_desde',
         ]);

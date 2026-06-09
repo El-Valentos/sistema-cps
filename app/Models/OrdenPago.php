@@ -80,6 +80,8 @@ class OrdenPago extends Model
             'revalidado'                 => 'Revalidado',
             'cerrado'                    => 'Cerrado',
             'anulado'                    => 'Anulado',
+            'enviado_archivos'           => 'Enviado a Archivos',
+            'archivado'                  => 'Archivado',
         ][$this->estado] ?? ucfirst($this->estado);
     }
 
@@ -102,9 +104,11 @@ class OrdenPago extends Model
             'entregado'                 => 'green',
             'cobrado'                   => 'blue',
             'revalidando'               => 'orange',
-            'revalidado'                => 'gray',
+            'revalidado'               => 'gray',
             'cerrado'                   => 'gray',
             'anulado'                   => 'red',
+            'enviado_archivos'          => 'orange',
+            'archivado'                 => 'gray',
         ][$this->estado] ?? 'gray';
     }
 

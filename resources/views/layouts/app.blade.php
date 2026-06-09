@@ -132,9 +132,13 @@
             @endif
 
             @can('ver_reportes')
-            <a href="{{ route('reportes.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 text-sm font-medium transition-all {{ request()->routeIs('reportes.*') ? 'bg-primary-800 text-white' : 'text-primary-200 hover:bg-primary-900 hover:text-white' }}">
+            <a href="{{ route('reportes.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 text-sm font-medium transition-all {{ request()->routeIs('reportes.index') ? 'bg-primary-800 text-white' : 'text-primary-200 hover:bg-primary-900 hover:text-white' }}">
                 <i class="fas fa-chart-bar w-5 text-center"></i>
-                <span>Reportes</span>
+                <span>Generador de Reportes</span>
+            </a>
+            <a href="{{ route('reportes.consolidado') }}" class="flex items-center gap-3 pl-10 pr-3 py-2 rounded-lg mb-1 text-sm font-medium transition-all {{ request()->routeIs('reportes.consolidado*') ? 'bg-primary-800 text-white' : 'text-primary-200 hover:bg-primary-900 hover:text-white' }}">
+                <i class="fas fa-layer-group w-4 text-center"></i>
+                <span>Reportes por Área</span>
             </a>
             @endcan
 

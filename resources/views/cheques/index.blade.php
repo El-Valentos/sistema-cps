@@ -126,11 +126,7 @@
                                         <a href="{{ route('cheques.show', $ch) }}" class="bg-primary-100 hover:bg-primary-200 text-primary-800 px-2 py-1.5 rounded-lg text-sm font-medium transition-colors" title="Ver">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        @can('imprimir_cheque')
-                                        <a href="{{ route('cheques.pdf', $ch) }}" target="_blank" class="bg-red-100 hover:bg-red-200 text-red-800 px-2 py-1.5 rounded-lg text-sm font-medium transition-colors" title="Imprimir PDF">
-                                            <i class="fas fa-print"></i>
-                                        </a>
-                                        @endcan
+
                                     </div>
                                 </td>
                             </tr>

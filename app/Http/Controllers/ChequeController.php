@@ -312,6 +312,12 @@ class ChequeController extends Controller
     public function imprimirSeleccionados(Request $request)
     {
         $ids = $request->input('cheques', []);
+        if (empty($ids)) {
+            $ids = $request->query('ids', '');
+            if (is_string($ids) && $ids !== '') {
+                $ids = explode(',', $ids);
+            }
+        }
         
         if (empty($ids)) {
             return back()->with('warning', 'No se seleccionaron cheques para imprimir');

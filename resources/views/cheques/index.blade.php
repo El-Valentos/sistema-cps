@@ -170,8 +170,9 @@
         document.getElementById('btn-imprimir-cheques').addEventListener('click', function() {
             const checked = document.querySelectorAll('.checkbox-cheque:checked');
             if (checked.length === 0) return;
-            document.getElementById('form-cheques').action = '{{ route("cheques.imprimir-seleccionados") }}';
-            document.getElementById('form-cheques').submit();
+            const ids = Array.from(checked).map(cb => cb.value).join(',');
+            const url = '{{ route("cheques.imprimir-seleccionados") }}?ids=' + ids;
+            window.open(url, '_blank');
         });
 
         document.getElementById('btn-enviar-cheques').addEventListener('click', function(e) {

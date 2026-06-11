@@ -300,46 +300,6 @@ class ContabilidadController extends Controller
         }
     }
 
-            foreach ($ordenes as $orden) {
-                $ultimoNumero++;
-                $numeroCheque = 'CH-' . date('Y') . '-' . str_pad($ultimoNumero, 5, '0', STR_PAD_LEFT);
-                $cheque = Cheque::create([
-                    'orden_pago_id'       => $orden->id,
-                    'numero_cheque'       => $numeroCheque,
-                    'gestion'             => date('Y'),
-                    'banco'               => 'A DESIGNAR',
-                    'fecha_emision'       => now()->toDateString(),
-                    'fecha_pago'          => now()->addDays(30)->toDateString(),
-                    'monto'               => $orden->neto_pagar,
-                    'monto_literal'       => $this->pdfService->convertirNumeroALiteral($orden->neto_pagar),
-                    'emitido_por'         => auth()->id(),
-                    'fecha_emision_sistema' => now(),
-                    'estado'              => 'emitido',
-                ]);
-
-                $orden->update([
-                    'estado' => 'enviado_presupuesto',
-                    'aprobado_por' => auth()->id(),
-                    'fecha_aprobacion' => now(),
-                ]);
-
-                $this->trackingService->registrarEvento(
-                    $orden,
-                    'aprobacion_contabilidad',
-                    'enviado_contabilidad',
-                    'enviado_presupuesto',
-                    'Orden aprobada masivamente por Contabilidad. Cheque: ' . $cheque->numero_cheque
-                );
-                $cont++;
-            }
-            DB::commit();
-            return back()->with('success', "Se han procesado {$cont} órdenes correctamente");
-        } catch (\Exception $e) {
-            DB::rollback();
-            return back()->with('error', 'Error al procesar órdenes: ' . $e->getMessage());
-        }
-    }
-
     public function enviarAdministracionMasivo(Request $request)
     {
         $ids = $request->input('cheques', []);

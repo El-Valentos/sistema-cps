@@ -55,11 +55,13 @@
                                                 <a href="{{ route('ordenes-pago.show', $orden) }}" class="bg-primary-100 hover:bg-primary-200 text-primary-800 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors">
                                                     <i class="fas fa-eye mr-1"></i> Ver Detalle
                                                 </a>
-                                                <a href="{{ url('/contabilidad/' . $orden->id . '/enviar-archivos') }}" 
-                                                   class="bg-green-100 hover:bg-green-200 text-green-800 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ml-2"
-                                                   onclick="event.preventDefault(); if(confirm('¿Auditar y enviar a Archivos?')) { fetch(this.href, { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } }).then(() => window.location.reload()); }">
-                                                    <i class="fas fa-check mr-1"></i> Auditar y Enviar
-                                                </a>
+                                                <form action="{{ route('contabilidad.enviarArchivos', $orden) }}" method="POST" class="inline ml-2">
+                                                    @csrf
+                                                    <button type="submit" class="bg-green-100 hover:bg-green-200 text-green-800 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+                                                            onclick="return confirm('¿Auditar y enviar a Archivos?')">
+                                                        <i class="fas fa-check mr-1"></i> Auditar y Enviar
+                                                    </button>
+                                                </form>
                                             </td>
                                         </tr>
                                     @empty

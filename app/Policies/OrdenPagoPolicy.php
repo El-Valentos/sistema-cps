@@ -8,18 +8,9 @@ class OrdenPagoPolicy
 {
     public function view(User $user, OrdenPago $ordenPago)
     {
-        $role = $user->roles->first()->name ?? null;
-        
-        if ($role === 'Super Admin') return true;
-        if ($role === 'Archivos') return true;
-        if ($role === 'Tesorería' && in_array($ordenPago->estado, ['pendiente_tesoreria', 'reenviado_financiera', 'rechazado_financiera'])) return true;
-        if ($role === 'Financiera') return true;
-        if ($role === 'Contabilidad') return true;
-        if ($role === 'Presupuesto') return true;
-        if ($role === 'Administración') return true;
-        if ($role === 'Caja') return true;
-        
-        return $user->id === $ordenPago->creado_por;
+        // Tracking universal: todos los usuarios autenticados pueden ver el tracking
+        // Las restricciones de acción (actualizar, aprobar, etc.) se manejan en métodos separados
+        return true;
     }
     
     public function create(User $user)

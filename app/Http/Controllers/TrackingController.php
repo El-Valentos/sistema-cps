@@ -48,12 +48,9 @@ class TrackingController extends Controller
             'documentosAdjuntos'
         ]);
 
-        // Verificar si el usuario puede ver este tracking
+        // Todos los usuarios autenticados pueden ver el tracking universalmente
+        // Las restricciones de acción se mantienen en los métodos de actualización
         $userRole = auth()->user()->roles->first()->name ?? '';
-        if (!in_array($userRole, ['Super Admin', 'Archivos']) && 
-            !$this->usuarioPuedeVerOrden($ordenPago, $userRole)) {
-            abort(403, 'No tiene permiso para ver este tracking');
-        }
 
         $tracking = $ordenPago->trackingHistorial;
         $estadosDisponibles = $this->getEstadosDisponibles($ordenPago->estado, $userRole);
@@ -228,38 +225,16 @@ class TrackingController extends Controller
             $query->whereDate('created_at', '<=', $request->fecha_hasta);
         }
 
-        $userRole = auth()->user()->roles->first()->name ?? '';
-        if ($userRole === 'Caja') {
-            $query->whereIn('estado', ['en_caja']);
-        } elseif ($userRole === 'Contabilidad') {
-            $query->whereIn('estado', ['enviado_contabilidad', 'rechazado_contabilidad', 'rechazado_presupuesto', 'enviado_presupuesto']);
-        } elseif ($userRole === 'Presupuesto') {
-            $query->whereIn('estado', ['enviado_presupuesto', 'rechazado_presupuesto', 'rechazado_financiera_cheque']);
-        } elseif ($userRole === 'Financiera') {
-            $query->whereIn('estado', ['enviado_financiera', 'reenviado_financiera', 'enviado_financiera_cheque', 'rechazado_financiera', 'rechazado_contabilidad', 'rechazado_administracion']);
-        } elseif ($userRole === 'Administración') {
-            $query->whereIn('estado', ['enviado_administracion', 'rechazado_administracion']);
-        } elseif ($userRole === 'Tesorería') {
-            $query->whereIn('estado', ['pendiente_tesoreria', 'enviado_financiera', 'reenviado_financiera', 'rechazado_financiera']);
-        }
+        // Tracking universal: todos los usuarios autenticados ven todas las órdenes
+        // Los filtros por estado son opcionales (via request), no obligatorios por rol
 
         return $query;
     }
 
     private function usuarioPuedeVerOrden(OrdenPago $orden, string $role): bool
     {
-        switch($role) {
-            case 'Tesorería':
-                return in_array($orden->estado, ['pendiente_tesoreria', 'enviado_financiera', 'reenviado_financiera', 'rechazado_financiera']) || $orden->creado_por === auth()->id();
-            case 'Financiera':
-                return in_array($orden->estado, ['enviado_financiera', 'reenviado_financiera', 'rechazado_financiera', 'enviado_contabilidad', 'rechazado_contabilidad', 'rechazado_administracion']);
-            case 'Contabilidad':
-                return in_array($orden->estado, ['enviado_contabilidad', 'cheque_generado', 'rechazado_presupuesto', 'enviado_presupuesto']);
-            case 'Caja':
-                return in_array($orden->estado, ['cheque_generado', 'en_caja', 'entregado']);
-            default:
-                return true;
-        }
+        // Tracking universal: todos pueden ver todas las órdenes
+        return true;
     }
 
     private function validarTransicion(string $from, string $to): bool

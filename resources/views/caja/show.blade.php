@@ -19,6 +19,7 @@
                 <div class="space-y-3 text-sm">
                     <div><span class="text-gray-500">Beneficiario:</span> <span class="font-semibold block text-base">{{ $ordenPago->beneficiario_nombre ?? '-' }}</span></div>
                     <div><span class="text-gray-500">CI/NIT/N° Patronal Beneficiario:</span> <span class="font-medium block">{{ $ordenPago->beneficiario_ci_nit ?? '-' }}</span></div>
+                    <div><span class="text-gray-500">Teléfono/Celular:</span> <span class="font-medium block">{{ $ordenPago->beneficiario_telefono ?? '-' }}</span></div>
                     <div><span class="text-gray-500">Concepto:</span> <span class="font-medium block">{{ $ordenPago->concepto }}</span></div>
                     <div><span class="text-gray-500">Neto a Pagar:</span> <span class="font-bold text-green-700 text-lg block">Bs. {{ number_format($ordenPago->neto_pagar, 2) }}</span></div>
                 </div>

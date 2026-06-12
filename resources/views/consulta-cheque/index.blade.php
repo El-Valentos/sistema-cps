@@ -44,32 +44,18 @@
                             <i class="fas fa-money-check text-green-700 text-xl"></i>
                         </div>
                         <h1 class="text-xl font-bold text-gray-800">Consulta de Cheques</h1>
-                        <p class="text-gray-500 text-sm mt-1">Busque por beneficiario, CI o NIT</p>
+                        <p class="text-gray-500 text-sm mt-1">Ingrese nombre, CI o NIT del beneficiario</p>
                     </div>
 
                     <!-- Search Form -->
                     <form method="POST" action="{{ route('consulta-cheque.buscar') }}" class="mb-6">
                         @csrf
                         <div class="flex flex-col sm:flex-row gap-3">
-                            <!-- Selector de tipo de búsqueda -->
-                            <div class="sm:w-40">
-                                <select name="tipo_busqueda" id="tipo_busqueda"
-                                    class="w-full rounded-lg border-gray-300 bg-gray-50 px-4 py-3 text-sm focus:border-green-500 focus:ring-green-500"
-                                    required onchange="actualizarPlaceholder()">
-                                    <option value="beneficiario" {{ old('tipo_busqueda') == 'beneficiario' ? 'selected' : '' }}>Beneficiario</option>
-                                    <option value="ci" {{ old('tipo_busqueda') == 'ci' ? 'selected' : '' }}>CI</option>
-                                    <option value="nit" {{ old('tipo_busqueda') == 'nit' ? 'selected' : '' }}>NIT</option>
-                                </select>
-                                @error('tipo_busqueda')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-                            
                             <!-- Campo de búsqueda -->
                             <div class="flex-1">
                                 <input type="text" name="valor_busqueda" id="valor_busqueda"
                                     class="w-full rounded-lg border-gray-300 bg-gray-50 px-4 py-3 text-sm focus:border-green-500 focus:ring-green-500"
-                                    placeholder="Ingrese el nombre del beneficiario..."
+                                    placeholder="Ingrese nombre, CI o NIT del beneficiario..."
                                     value="{{ old('valor_busqueda') }}"
                                     required autofocus>
                                 @error('valor_busqueda')
@@ -93,16 +79,8 @@
                     <div class="flex items-center justify-between mb-4">
                         <div>
                             <h2 class="text-lg font-semibold text-gray-800">Resultados de la Consulta</h2>
-                            @php
-                                $tipoLabel = match($tipoBusqueda) {
-                                    'beneficiario' => 'Beneficiario',
-                                    'ci' => 'CI',
-                                    'nit' => 'NIT',
-                                };
-                            @endphp
                             <p class="text-sm text-gray-500">
-                                Búsqueda por <span class="font-medium">{{ $tipoLabel }}</span>: 
-                                <span class="font-semibold text-gray-700">"{{ $valorBusqueda }}"</span>
+                                Búsqueda: <span class="font-semibold text-gray-700">"{{ $valorBusqueda }}"</span>
                             </p>
                         </div>
                         <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">
@@ -111,81 +89,60 @@
                     </div>
 
                     <!-- Lista de cheques -->
-                    <div class="space-y-4">
+                    <div class="space-y-3">
                         @foreach($resultados as $resultado)
                             @php
                                 $cheque = $resultado['cheque'];
                                 $estadoCliente = $resultado['estadoCliente'];
+                                $orden = $cheque->ordenPago;
                                 
                                 $badge = match($estadoCliente['color']) {
+                                    'blue' => 'bg-blue-100 text-blue-700',
                                     'green' => 'bg-green-100 text-green-700',
                                     'red' => 'bg-red-100 text-red-700',
                                     'yellow' => 'bg-yellow-100 text-yellow-700',
                                     default => 'bg-gray-100 text-gray-700',
                                 };
                                 $icon = match($estadoCliente['key']) {
-                                    'aprobado' => 'fa-check-circle',
+                                    'listo' => 'fa-check-circle',
                                     'rechazado' => 'fa-times-circle',
                                     default => 'fa-clock',
                                 };
                             @endphp
                             
-                            <div class="bg-gray-50 rounded-xl p-5 border border-gray-200">
-                                <!-- Encabezado del cheque -->
-                                <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
+                            <div class="bg-gray-50 rounded-xl px-5 py-4 border border-gray-200">
+                                <div class="flex items-center justify-between mb-3">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                                            <i class="fas fa-money-check text-green-700"></i>
+                                        <div class="w-9 h-9 rounded-full bg-green-100 flex items-center justify-center">
+                                            <i class="fas fa-money-check text-green-700 text-sm"></i>
                                         </div>
                                         <div>
                                             <p class="text-xs text-gray-500">N° de Cheque</p>
-                                            <p class="font-bold text-gray-800">{{ $cheque->numero_cheque }}</p>
+                                            <p class="font-bold text-gray-800">{{ $cheque->numero_cheque ?? 'Pendiente' }}</p>
                                         </div>
                                     </div>
-                                    <span class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold {{ $badge }}">
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold {{ $badge }}">
                                         <i class="fas {{ $icon }}"></i>
                                         {{ $estadoCliente['label'] }}
                                     </span>
                                 </div>
 
-                                <!-- Detalles del cheque -->
-                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
+                                <div class="grid grid-cols-3 gap-4 text-sm">
                                     <div>
                                         <p class="text-gray-500 text-xs">Beneficiario</p>
-                                        <p class="font-semibold text-gray-800 truncate">{{ $cheque->ordenPago?->beneficiario_nombre ?? '-' }}</p>
+                                        <p class="font-semibold text-gray-800 truncate">
+                                            {{ $orden?->beneficiario_nombre ?? '-' }} {{ $orden?->beneficiario_apellidos ?? '' }}
+                                        </p>
                                     </div>
                                     <div>
                                         <p class="text-gray-500 text-xs">CI/NIT</p>
-                                        <p class="font-semibold text-gray-800">{{ $cheque->ordenPago?->beneficiario_ci_nit ?? '-' }}</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-gray-500 text-xs">Monto</p>
-                                        <p class="font-semibold text-green-700">Bs. {{ number_format($cheque->monto, 2) }}</p>
+                                        <p class="font-semibold text-gray-800">{{ $orden?->beneficiario_ci_nit ?? '-' }}</p>
                                     </div>
                                     <div>
                                         <p class="text-gray-500 text-xs">Fecha de Emisión</p>
                                         <p class="font-semibold text-gray-800">{{ $cheque->fecha_emision?->format('d/m/Y') ?? '-' }}</p>
                                     </div>
                                 </div>
-
-                                <!-- Banco y cuenta -->
-                                <div class="grid grid-cols-2 gap-4 text-sm">
-                                    <div>
-                                        <p class="text-gray-500 text-xs">Banco</p>
-                                        <p class="font-semibold text-gray-800">{{ $cheque->banco ?? '-' }}</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-gray-500 text-xs">N° de Cuenta</p>
-                                        <p class="font-semibold text-gray-800">{{ $cheque->numero_cuenta ?? '-' }}</p>
-                                    </div>
-                                </div>
-
-                                @if($cheque->ordenPago?->concepto)
-                                <div class="mt-4 pt-3 border-t border-gray-200 text-sm">
-                                    <p class="text-gray-500 text-xs">Concepto</p>
-                                    <p class="text-gray-800">{{ $cheque->ordenPago->concepto }}</p>
-                                </div>
-                                @endif
                             </div>
                         @endforeach
                     </div>
@@ -206,25 +163,6 @@
             </div>
         </main>
     </div>
-
-    <!-- Script para actualizar placeholder dinámicamente -->
-    <script>
-        function actualizarPlaceholder() {
-            const tipoBusqueda = document.getElementById('tipo_busqueda').value;
-            const campoBusqueda = document.getElementById('valor_busqueda');
-            
-            const placeholders = {
-                'beneficiario': 'Ingrese el nombre del beneficiario...',
-                'ci': 'Ingrese el número de carnet de identidad...',
-                'nit': 'Ingrese el número de NIT...'
-            };
-            
-            campoBusqueda.placeholder = placeholders[tipoBusqueda] || 'Ingrese el valor de búsqueda...';
-        }
-        
-        // Inicializar placeholder al cargar la página
-        document.addEventListener('DOMContentLoaded', actualizarPlaceholder);
-    </script>
 
     @vite('resources/js/app.js')
 </body>

@@ -15,44 +15,37 @@ class ConsultaChequeController extends Controller
     public function buscar(Request $request)
     {
         $request->validate([
-            'tipo_busqueda' => 'required|in:beneficiario,ci,nit',
             'valor_busqueda' => 'required|string|max:100',
         ]);
 
-        $tipoBusqueda = $request->tipo_busqueda;
         $valorBusqueda = trim($request->valor_busqueda);
 
-        // Construir la consulta base
-        $query = Cheque::with('ordenPago');
+        $query = Cheque::with('ordenPago.beneficiario');
 
-        // Aplicar filtro según el tipo de búsqueda
-        switch ($tipoBusqueda) {
-            case 'beneficiario':
-                // Búsqueda parcial por nombre de beneficiario (insensible a mayúsculas)
-                $query->whereHas('ordenPago', function ($q) use ($valorBusqueda) {
-                    $q->where('beneficiario_nombre', 'LIKE', '%' . $valorBusqueda . '%');
-                });
-                break;
+        $query->whereHas('ordenPago', function ($q) use ($valorBusqueda) {
+            $q->where(function ($q2) use ($valorBusqueda) {
+                $q2->where('beneficiario_nombre', 'LIKE', '%' . $valorBusqueda . '%')
+                   ->orWhere('beneficiario_apellidos', 'LIKE', '%' . $valorBusqueda . '%')
+                   ->orWhere('beneficiario_ci_nit', 'LIKE', '%' . $valorBusqueda . '%')
+                   ->orWhereHas('beneficiario', function ($q3) use ($valorBusqueda) {
+                       $q3->where('nombre_razon_social', 'LIKE', '%' . $valorBusqueda . '%')
+                          ->orWhere('apellidos', 'LIKE', '%' . $valorBusqueda . '%')
+                          ->orWhere('ci_nit', 'LIKE', '%' . $valorBusqueda . '%');
+                   });
+            });
+            $q->whereNotIn('estado', [
+                'entregado', 'cerrado', 'entregado_contabilidad', 'archivado', 'anulado'
+            ]);
+        });
 
-            case 'ci':
-            case 'nit':
-                // Búsqueda exacta por CI/NIT
-                $query->whereHas('ordenPago', function ($q) use ($valorBusqueda) {
-                    $q->where('beneficiario_ci_nit', $valorBusqueda);
-                });
-                break;
-        }
-
-        // Obtener todos los cheques coincidentes, ordenados por fecha más reciente
         $cheques = $query->orderBy('fecha_emision', 'desc')->get();
 
         if ($cheques->isEmpty()) {
             return back()
-                ->with('error', 'No se encontraron cheques con los criterios de búsqueda ingresados.')
+                ->with('error', 'No se encontraron cheques con el dato ingresado.')
                 ->withInput();
         }
 
-        // Determinar el estado del cliente para cada cheque
         $resultados = $cheques->map(function ($cheque) {
             return [
                 'cheque' => $cheque,
@@ -60,7 +53,7 @@ class ConsultaChequeController extends Controller
             ];
         });
 
-        return view('consulta-cheque.index', compact('resultados', 'tipoBusqueda', 'valorBusqueda'));
+        return view('consulta-cheque.index', compact('resultados', 'valorBusqueda'));
     }
 
     private function determinarEstadoCliente($cheque)
@@ -69,8 +62,8 @@ class ConsultaChequeController extends Controller
 
         $rechazados = ['rechazado_financiera', 'rechazado_contabilidad', 'rechazado_presupuesto', 'rechazado_financiera_cheque', 'rechazado_administracion'];
 
-        if (in_array($opEstado, ['entregado', 'cerrado'])) {
-            return ['key' => 'aprobado', 'label' => 'Aprobado', 'color' => 'green'];
+        if ($opEstado === 'en_caja') {
+            return ['key' => 'listo', 'label' => 'Listo para Entrega', 'color' => 'blue'];
         }
 
         if (in_array($opEstado, $rechazados)) {

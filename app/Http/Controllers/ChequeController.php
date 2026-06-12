@@ -106,8 +106,13 @@ class ChequeController extends Controller
 
             DB::commit();
 
+            $report = app(\App\Services\ReporteEnvioService::class)->generar(
+                collect([$cheque]), 'enviado_presupuesto', 'cheque'
+            );
+
             return redirect()->route('cheques.show', $cheque)
-                ->with('warning', 'Cheque generado. Debe asignar un número de cheque antes de imprimir o enviar a Presupuesto.');
+                ->with('warning', 'Cheque generado. Debe asignar un número de cheque antes de imprimir o enviar a Presupuesto.')
+                ->with('download_report', $report);
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -172,8 +177,13 @@ class ChequeController extends Controller
 
             DB::commit();
 
+            $report = app(\App\Services\ReporteEnvioService::class)->generar(
+                collect([$cheque]), 'enviado_presupuesto', 'cheque'
+            );
+
             return redirect()->route('presupuesto.index')
-                ->with('success', 'Cheque confirmado y enviado a Presupuesto');
+                ->with('success', 'Cheque confirmado y enviado a Presupuesto')
+                ->with('download_report', $report);
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -222,7 +232,12 @@ class ChequeController extends Controller
 
             DB::commit();
 
-            return back()->with('success', "Se han enviado {$cont} cheques a Presupuesto correctamente");
+            $report = app(\App\Services\ReporteEnvioService::class)->generar(
+                $cheques, 'enviado_presupuesto', 'cheque'
+            );
+
+            return back()->with('success', "Se han enviado {$cont} cheques a Presupuesto correctamente")
+                ->with('download_report', $report);
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -371,8 +386,13 @@ class ChequeController extends Controller
 
             DB::commit();
 
+            $report = app(\App\Services\ReporteEnvioService::class)->generar(
+                collect([$ordenPago]), 'enviado_contabilidad', 'orden'
+            );
+
             return redirect()->route('cheques.index')
-                ->with('success', 'Cheque anulado exitosamente');
+                ->with('success', 'Cheque anulado exitosamente')
+                ->with('download_report', $report);
 
         } catch (\Exception $e) {
             DB::rollback();

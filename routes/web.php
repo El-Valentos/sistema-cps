@@ -181,6 +181,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/generar', [ReporteController::class, 'generar'])->name('generar');
         Route::get('/consolidado', [ReporteController::class, 'consolidado'])->name('consolidado');
         Route::get('/consolidado/pdf', [ReporteController::class, 'exportarConsolidadoPDF'])->name('consolidado.pdf');
+        Route::get('/descargar/{filename}', [ReporteController::class, 'descargarTemp'])->name('descargar');
     });
 
     // Logout

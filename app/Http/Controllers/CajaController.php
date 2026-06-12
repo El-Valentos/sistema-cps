@@ -79,8 +79,13 @@ class CajaController extends Controller
 
             DB::commit();
 
+            $report = app(\App\Services\ReporteEnvioService::class)->generar(
+                collect([$ordenPago]), 'entregado', 'orden'
+            );
+
             return redirect()->route('caja.index')
-                ->with('success', 'Entrega de cheque registrada exitosamente');
+                ->with('success', 'Entrega de cheque registrada exitosamente')
+                ->with('download_report', $report);
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -105,8 +110,13 @@ class CajaController extends Controller
 
             DB::commit();
 
+            $report = app(\App\Services\ReporteEnvioService::class)->generar(
+                collect([$ordenPago]), 'entregado_contabilidad', 'orden'
+            );
+
             return redirect()->route('caja.index')
-                ->with('success', 'Orden enviada a Contabilidad para archivo');
+                ->with('success', 'Orden enviada a Contabilidad para archivo')
+                ->with('download_report', $report);
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -135,7 +145,12 @@ class CajaController extends Controller
 
             DB::commit();
 
-            return back()->with('success', 'Cheque marcado como cobrado exitosamente.');
+            $report = app(\App\Services\ReporteEnvioService::class)->generar(
+                collect([$ordenPago]), 'cobrado', 'orden'
+            );
+
+            return back()->with('success', 'Cheque marcado como cobrado exitosamente.')
+                ->with('download_report', $report);
         } catch (\Exception $e) {
             DB::rollback();
             return back()->with('error', 'Error al marcar como cobrado: ' . $e->getMessage());
@@ -163,7 +178,12 @@ class CajaController extends Controller
 
             DB::commit();
 
-            return back()->with('success', 'Cheque revalidado exitosamente.');
+            $report = app(\App\Services\ReporteEnvioService::class)->generar(
+                collect([$ordenPago]), 'revalidado', 'orden'
+            );
+
+            return back()->with('success', 'Cheque revalidado exitosamente.')
+                ->with('download_report', $report);
         } catch (\Exception $e) {
             DB::rollback();
             return back()->with('error', 'Error al revalidar cheque: ' . $e->getMessage());
@@ -191,7 +211,11 @@ class CajaController extends Controller
                 $cont++;
             }
             DB::commit();
-            return back()->with('success', "Se han revalidado {$cont} cheques correctamente");
+            $report = app(\App\Services\ReporteEnvioService::class)->generar(
+                $ordenes, 'revalidado', 'orden'
+            );
+            return back()->with('success', "Se han revalidado {$cont} cheques correctamente")
+                ->with('download_report', $report);
         } catch (\Exception $e) {
             DB::rollback();
             return back()->with('error', 'Error al procesar la revalidación masiva: ' . $e->getMessage());
@@ -219,7 +243,11 @@ class CajaController extends Controller
                 $cont++;
             }
             DB::commit();
-            return back()->with('success', "Se han enviado {$cont} órdenes a Archivos correctamente");
+            $report = app(\App\Services\ReporteEnvioService::class)->generar(
+                $ordenes, 'entregado_contabilidad', 'orden'
+            );
+            return back()->with('success', "Se han enviado {$cont} órdenes a Archivos correctamente")
+                ->with('download_report', $report);
         } catch (\Exception $e) {
             DB::rollback();
             return back()->with('error', 'Error al procesar el envío masivo: ' . $e->getMessage());

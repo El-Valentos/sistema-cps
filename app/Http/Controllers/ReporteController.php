@@ -40,6 +40,21 @@ class ReporteController extends Controller
         return $pdf->download("reporte_consolidado_" . date('Ymd_His') . ".pdf");
     }
 
+    public function descargarTemp(string $filename)
+    {
+        $path = "public/tmp/{$filename}";
+        
+        if (!\Illuminate\Support\Facades\Storage::exists($path)) {
+            abort(404);
+        }
+
+        return response()->download(
+            \Illuminate\Support\Facades\Storage::path($path),
+            $filename,
+            ['Content-Type' => 'application/pdf']
+        )->deleteFileAfterSend(true);
+    }
+
     public function generar(Request $request)
     {
         $request->validate([

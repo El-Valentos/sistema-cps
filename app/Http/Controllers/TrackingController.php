@@ -95,8 +95,13 @@ class TrackingController extends Controller
 
             DB::commit();
 
+            $report = app(\App\Services\ReporteEnvioService::class)->generar(
+                collect([$ordenPago]), $nuevoEstado, 'orden'
+            );
+
             return redirect()->route('tracking.show', $ordenPago)
-                ->with('success', 'Estado actualizado exitosamente');
+                ->with('success', 'Estado actualizado exitosamente')
+                ->with('download_report', $report);
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -139,8 +144,13 @@ class TrackingController extends Controller
 
             DB::commit();
 
+            $report = app(\App\Services\ReporteEnvioService::class)->generar(
+                collect([$ordenPago]), 'entregado', 'orden'
+            );
+
             return redirect()->route('tracking.show', $ordenPago)
-                ->with('success', 'Entrega registrada exitosamente');
+                ->with('success', 'Entrega registrada exitosamente')
+                ->with('download_report', $report);
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -171,8 +181,13 @@ class TrackingController extends Controller
 
             DB::commit();
 
+            $report = app(\App\Services\ReporteEnvioService::class)->generar(
+                collect([$ordenPago]), 'cerrado', 'orden'
+            );
+
             return redirect()->route('tracking.show', $ordenPago)
-                ->with('success', 'Trámite cerrado exitosamente');
+                ->with('success', 'Trámite cerrado exitosamente')
+                ->with('download_report', $report);
 
         } catch (\Exception $e) {
             DB::rollback();

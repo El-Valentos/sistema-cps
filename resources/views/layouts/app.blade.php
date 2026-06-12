@@ -229,6 +229,9 @@
 </div>
 
 @vite('resources/js/app.js')
+@if(session('download_report'))
+<script>document.addEventListener('DOMContentLoaded',function(){var a=document.createElement('a');a.href='{{ route("reportes.descargar", session("download_report")) }}';a.download='';document.body.appendChild(a);a.click();a.remove();})</script>
+@endif
 @stack('scripts')
 </body>
 </html>

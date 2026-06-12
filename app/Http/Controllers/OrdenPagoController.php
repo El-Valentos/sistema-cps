@@ -292,8 +292,13 @@ class OrdenPagoController extends Controller
 
             DB::commit();
 
+            $report = app(\App\Services\ReporteEnvioService::class)->generar(
+                collect([$ordenPago]), 'enviado_financiera', 'orden'
+            );
+
             return redirect()->route('ordenes-pago.show', $ordenPago)
-                ->with('success', 'Orden aprobada y enviada a Financiera');
+                ->with('success', 'Orden aprobada y enviada a Financiera')
+                ->with('download_report', $report);
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -326,8 +331,13 @@ class OrdenPagoController extends Controller
 
             DB::commit();
 
+            $report = app(\App\Services\ReporteEnvioService::class)->generar(
+                collect([$ordenPago]), 'reenviado_financiera', 'orden'
+            );
+
             return redirect()->route('ordenes-pago.show', $ordenPago)
-                ->with('success', 'Orden reenviada a Financiera exitosamente');
+                ->with('success', 'Orden reenviada a Financiera exitosamente')
+                ->with('download_report', $report);
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -373,7 +383,12 @@ class OrdenPagoController extends Controller
 
             DB::commit();
 
-            return back()->with('success', "Se han enviado {$cont} órdenes a Financiera correctamente");
+            $report = app(\App\Services\ReporteEnvioService::class)->generar(
+                $ordenes, 'enviado_financiera', 'orden'
+            );
+
+            return back()->with('success', "Se han enviado {$cont} órdenes a Financiera correctamente")
+                ->with('download_report', $report);
 
         } catch (\Exception $e) {
             DB::rollback();

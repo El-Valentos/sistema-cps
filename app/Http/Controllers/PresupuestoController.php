@@ -54,8 +54,13 @@ class PresupuestoController extends Controller
 
             DB::commit();
 
+            $report = app(\App\Services\ReporteEnvioService::class)->generar(
+                collect([$cheque]), 'enviado_financiera_cheque', 'cheque'
+            );
+
             return redirect()->route('presupuesto.index')
-                ->with('success', 'Cheque aprobado y enviado a Financiera exitosamente');
+                ->with('success', 'Cheque aprobado y enviado a Financiera exitosamente')
+                ->with('download_report', $report);
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -122,7 +127,11 @@ class PresupuestoController extends Controller
                 }
             }
             DB::commit();
-            return back()->with('success', "Se han aprobado {$cont} cheques correctamente");
+            $report = app(\App\Services\ReporteEnvioService::class)->generar(
+                $cheques, 'enviado_financiera_cheque', 'cheque'
+            );
+            return back()->with('success', "Se han aprobado {$cont} cheques correctamente")
+                ->with('download_report', $report);
         } catch (\Exception $e) {
             DB::rollback();
             return back()->with('error', 'Error al procesar el envío masivo: ' . $e->getMessage());

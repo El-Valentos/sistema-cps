@@ -115,27 +115,27 @@ class OrdenPago extends Model
     // Accessors para datos del beneficiario (snapshot优先)
     public function getBeneficiarioNombreAttribute()
     {
-        return $this->beneficiario_nombre ?? $this->beneficiario?->nombre_razon_social;
+        return $this->attributes['beneficiario_nombre'] ?? $this->beneficiario?->nombre_razon_social;
     }
 
     public function getBeneficiarioApellidosAttribute()
     {
-        return $this->beneficiario_apellidos ?? $this->beneficiario?->apellidos;
+        return $this->attributes['beneficiario_apellidos'] ?? $this->beneficiario?->apellidos;
     }
 
     public function getBeneficiarioCiNitAttribute()
     {
-        return $this->beneficiario_ci_nit ?? $this->beneficiario?->ci_nit;
+        return $this->attributes['beneficiario_ci_nit'] ?? $this->beneficiario?->ci_nit;
     }
 
     public function getBeneficiarioDireccionAttribute()
     {
-        return $this->beneficiario_direccion ?? $this->beneficiario?->direccion;
+        return $this->attributes['beneficiario_direccion'] ?? $this->beneficiario?->direccion;
     }
 
     public function getBeneficiarioTelefonoAttribute()
     {
-        return $this->beneficiario_telefono ?? $this->beneficiario?->telefono;
+        return $this->attributes['beneficiario_telefono'] ?? $this->beneficiario?->telefono;
     }
 
     // Relaciones

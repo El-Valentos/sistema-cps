@@ -53,8 +53,13 @@ class AdministracionController extends Controller
 
             DB::commit();
 
+            $report = app(\App\Services\ReporteEnvioService::class)->generar(
+                collect([$cheque]), 'en_caja', 'cheque'
+            );
+
             return redirect()->route('administracion.index')
-                ->with('success', 'Cheque aprobado y enviado a Caja exitosamente');
+                ->with('success', 'Cheque aprobado y enviado a Caja exitosamente')
+                ->with('download_report', $report);
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -121,7 +126,11 @@ class AdministracionController extends Controller
                 }
             }
             DB::commit();
-            return back()->with('success', "Se han aprobado {$cont} cheques correctamente");
+            $report = app(\App\Services\ReporteEnvioService::class)->generar(
+                $cheques, 'en_caja', 'cheque'
+            );
+            return back()->with('success', "Se han aprobado {$cont} cheques correctamente")
+                ->with('download_report', $report);
         } catch (\Exception $e) {
             DB::rollback();
             return back()->with('error', 'Error al procesar el envío masivo: ' . $e->getMessage());

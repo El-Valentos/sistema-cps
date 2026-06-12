@@ -59,8 +59,13 @@ class FinancieraController extends Controller
 
             DB::commit();
 
+            $report = app(\App\Services\ReporteEnvioService::class)->generar(
+                collect([$cheque]), 'enviado_administracion', 'cheque'
+            );
+
             return redirect()->route('financiera.cheques')
-                ->with('success', 'Cheque aprobado y enviado a Administración exitosamente');
+                ->with('success', 'Cheque aprobado y enviado a Administración exitosamente')
+                ->with('download_report', $report);
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -132,8 +137,13 @@ class FinancieraController extends Controller
 
             DB::commit();
 
+            $report = app(\App\Services\ReporteEnvioService::class)->generar(
+                collect([$ordenPago]), 'enviado_contabilidad', 'orden'
+            );
+
             return redirect()->route('financiera.index')
-                ->with('success', 'Orden enviada a Contabilidad exitosamente');
+                ->with('success', 'Orden enviada a Contabilidad exitosamente')
+                ->with('download_report', $report);
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -208,7 +218,11 @@ class FinancieraController extends Controller
                 $cont++;
             }
             DB::commit();
-            return back()->with('success', "Se han enviado {$cont} órdenes a Contabilidad correctamente");
+            $report = app(\App\Services\ReporteEnvioService::class)->generar(
+                $ordenes, 'enviado_contabilidad', 'orden'
+            );
+            return back()->with('success', "Se han enviado {$cont} órdenes a Contabilidad correctamente")
+                ->with('download_report', $report);
         } catch (\Exception $e) {
             DB::rollback();
             return back()->with('error', 'Error al procesar el envío masivo: ' . $e->getMessage());
@@ -239,7 +253,11 @@ class FinancieraController extends Controller
                 }
             }
             DB::commit();
-            return back()->with('success', "Se han aprobado {$cont} cheques correctamente");
+            $report = app(\App\Services\ReporteEnvioService::class)->generar(
+                $cheques, 'enviado_administracion', 'cheque'
+            );
+            return back()->with('success', "Se han aprobado {$cont} cheques correctamente")
+                ->with('download_report', $report);
         } catch (\Exception $e) {
             DB::rollback();
             return back()->with('error', 'Error al procesar el envío masivo: ' . $e->getMessage());

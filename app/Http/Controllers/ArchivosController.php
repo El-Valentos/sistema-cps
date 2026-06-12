@@ -43,8 +43,13 @@ class ArchivosController extends Controller
 
             DB::commit();
 
+            $report = app(\App\Services\ReporteEnvioService::class)->generar(
+                collect([$ordenPago]), 'archivado', 'orden'
+            );
+
             return redirect()->route('archivos.index')
-                ->with('success', 'Orden archivada definitivamente');
+                ->with('success', 'Orden archivada definitivamente')
+                ->with('download_report', $report);
 
         } catch (\Exception $e) {
             DB::rollback();

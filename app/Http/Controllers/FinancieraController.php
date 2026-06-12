@@ -79,6 +79,7 @@ class FinancieraController extends Controller
             DB::beginTransaction();
 
             $ordenPago = $cheque->ordenPago;
+            $estadoAnterior = $ordenPago->estado;
             $ordenPago->update([
                 'estado' => 'rechazado_financiera_cheque',
                 'observaciones' => $request->motivo_rechazo
@@ -87,7 +88,7 @@ class FinancieraController extends Controller
             $this->trackingService->registrarEvento(
                 $ordenPago,
                 'rechazo_cheque_financiera',
-                'enviado_financiera_cheque',
+                $estadoAnterior,
                 'rechazado_financiera_cheque',
                 'Cheque rechazado por Financiera. Motivo: ' . $request->motivo_rechazo
             );

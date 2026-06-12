@@ -96,7 +96,10 @@
                 <h3 class="text-lg font-medium text-gray-900">Motivo de Rechazo</h3>
                 <form id="form-rechazo" method="POST" class="mt-2 text-left">
                     @csrf
-                    <textarea name="motivo_rechazo" rows="4" class="shadow-sm focus:ring-primary-500 focus:border-primary-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md" required placeholder="Explique el motivo..."></textarea>
+                    <textarea name="motivo_rechazo" rows="4" class="shadow-sm focus:ring-primary-500 focus:border-primary-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md" required placeholder="Explique el motivo (mín. 10 caracteres)..."></textarea>
+                    @error('motivo_rechazo')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
                     <div class="flex justify-end gap-2 mt-4">
                         <button type="button" onclick="cerrarModalRechazo()" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">Cancelar</button>
                         <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Rechazar</button>

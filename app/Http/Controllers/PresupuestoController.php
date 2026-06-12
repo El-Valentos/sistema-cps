@@ -73,6 +73,7 @@ class PresupuestoController extends Controller
             DB::beginTransaction();
 
             $ordenPago = $cheque->ordenPago;
+            $estadoAnterior = $ordenPago->estado;
             $ordenPago->update([
                 'estado' => 'rechazado_presupuesto',
                 'observaciones' => $request->motivo_rechazo
@@ -81,7 +82,7 @@ class PresupuestoController extends Controller
             $this->trackingService->registrarEvento(
                 $ordenPago,
                 'rechazo_presupuesto',
-                'enviado_presupuesto',
+                $estadoAnterior,
                 'rechazado_presupuesto',
                 'Cheque rechazado por Presupuesto. Motivo: ' . $request->motivo_rechazo
             );

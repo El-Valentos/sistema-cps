@@ -81,6 +81,7 @@ class ContabilidadController extends Controller
         try {
             DB::beginTransaction();
 
+            $estadoAnterior = $ordenPago->estado;
             $ordenPago->update([
                 'estado' => 'rechazado_contabilidad',
                 'observaciones' => $request->motivo_rechazo
@@ -89,7 +90,7 @@ class ContabilidadController extends Controller
             $this->trackingService->registrarEvento(
                 $ordenPago,
                 'rechazo_contabilidad',
-                'enviado_contabilidad',
+                $estadoAnterior,
                 'rechazado_contabilidad',
                 'Orden rechazada por Contabilidad. Motivo: ' . $request->motivo_rechazo
             );

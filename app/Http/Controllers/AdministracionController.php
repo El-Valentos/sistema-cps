@@ -72,6 +72,7 @@ class AdministracionController extends Controller
             DB::beginTransaction();
 
             $ordenPago = $cheque->ordenPago;
+            $estadoAnterior = $ordenPago->estado;
             $ordenPago->update([
                 'estado' => 'rechazado_administracion',
                 'observaciones' => $request->motivo_rechazo
@@ -80,7 +81,7 @@ class AdministracionController extends Controller
             $this->trackingService->registrarEvento(
                 $ordenPago,
                 'rechazo_administracion',
-                'enviado_administracion',
+                $estadoAnterior,
                 'rechazado_administracion',
                 'Cheque rechazado por Administración. Motivo: ' . $request->motivo_rechazo
             );
@@ -92,7 +93,7 @@ class AdministracionController extends Controller
 
         } catch (\Exception $e) {
             DB::rollback();
-            return back()->with('error', 'Error al rechazar the cheque: ' . $e->getMessage());
+            return back()->with('error', 'Error al rechazar el cheque: ' . $e->getMessage());
         }
     }
 

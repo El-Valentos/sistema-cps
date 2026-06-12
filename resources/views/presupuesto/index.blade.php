@@ -96,7 +96,10 @@
                 <h3 class="text-lg font-medium text-gray-900">Motivo de Rechazo del Cheque</h3>
                 <form id="form-rechazo" method="POST" class="mt-2 text-left">
                     @csrf
-                    <textarea name="motivo_rechazo" rows="4" class="shadow-sm focus:ring-primary-500 focus:border-primary-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md" required placeholder="Explique el motivo del rechazo..."></textarea>
+                    <textarea name="motivo_rechazo" rows="4" class="shadow-sm focus:ring-primary-500 focus:border-primary-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md" required placeholder="Explique el motivo del rechazo (mín. 10 caracteres)..."></textarea>
+                    @error('motivo_rechazo')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
                     <div class="flex justify-end gap-2 mt-4">
                         <button type="button" onclick="cerrarModalRechazo()" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">Cancelar</button>
                         <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Rechazar Cheque</button>
@@ -123,51 +126,6 @@
             document.getElementById('modal-rechazo').classList.add('hidden');
         }
 
-        // Script para selección masiva
-        document.getElementById('select-all').addEventListener('change', function() {
-            const checkboxes = document.querySelectorAll('.checkbox-item');
-            checkboxes.forEach(cb => cb.checked = this.checked);
-            toggleBtnMasivo();
-        });
-
-        document.querySelectorAll('.checkbox-item').forEach(cb => {
-            cb.addEventListener('change', toggleBtnMasivo);
-        });
-
-        function toggleBtnMasivo() {
-            const checked = document.querySelectorAll('.checkbox-item:checked');
-            document.getElementById('btn-masivo').classList.toggle('hidden', checked.length === 0);
-        }
-    </script>
-        </div>
-    </div>
-
-    <div id="modal-rechazo" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
-        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div class="mt-3 text-center">
-                <h3 class="text-lg font-medium text-gray-900">Motivo de Rechazo del Cheque</h3>
-                <form id="form-rechazo" method="POST" class="mt-2 text-left">
-                    @csrf
-                    <textarea name="motivo_rechazo" rows="4" class="shadow-sm focus:ring-primary-500 focus:border-primary-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md" required placeholder="Explique el motivo del rechazo..."></textarea>
-                    <div class="flex justify-end gap-2 mt-4">
-                        <button type="button" onclick="cerrarModalRechazo()" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">Cancelar</button>
-                        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Rechazar Cheque</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        function rechazarCheque(id) {
-            document.getElementById('form-rechazo').action = `/presupuesto/${id}/rechazar`;
-            document.getElementById('modal-rechazo').classList.remove('hidden');
-        }
-        function cerrarModalRechazo() {
-            document.getElementById('modal-rechazo').classList.add('hidden');
-        }
-
-        // Script para selección masiva
         document.getElementById('select-all').addEventListener('change', function() {
             const checkboxes = document.querySelectorAll('.checkbox-item');
             checkboxes.forEach(cb => cb.checked = this.checked);

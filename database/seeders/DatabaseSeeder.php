@@ -50,6 +50,7 @@ class DatabaseSeeder extends Seeder
             ['nombre' => 'Medicamentos',          'codigo' => 'ME', 'partida_presupuestaria' => '2.1.2.005', 'presupuesto_anual' => 15000000, 'requiere_aprobacion' => true],
             ['nombre' => 'Servicios',             'codigo' => 'SE', 'partida_presupuestaria' => '2.2.1.010', 'presupuesto_anual' => 8000000, 'requiere_aprobacion' => true],
             ['nombre' => 'Pasajes',               'codigo' => 'PA', 'partida_presupuestaria' => '2.3.1.015', 'presupuesto_anual' => 2000000, 'requiere_aprobacion' => false],
+            ['nombre' => 'Otros',                  'codigo' => 'OT', 'partida_presupuestaria' => null,        'presupuesto_anual' => 0,       'requiere_aprobacion' => false],
         ];
 
         foreach ($categorias as $cat) {

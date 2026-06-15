@@ -11,8 +11,9 @@ class WorkflowOrchestratorService
         'pendiente_tesoreria' => ['enviado_financiera'],
         'enviado_financiera' => ['enviado_contabilidad', 'rechazado_financiera'],
         'rechazado_financiera' => ['enviado_financiera'],
-        'enviado_contabilidad' => ['enviado_presupuesto', 'rechazado_contabilidad'],
+        'enviado_contabilidad' => ['cheque_generado', 'rechazado_contabilidad'],
         'rechazado_contabilidad' => ['enviado_contabilidad'],
+        'cheque_generado' => ['enviado_presupuesto'],
         'enviado_presupuesto' => ['enviado_financiera_cheque', 'rechazado_presupuesto'],
         'rechazado_presupuesto' => ['enviado_presupuesto'],
         'enviado_financiera_cheque' => ['enviado_administracion', 'rechazado_financiera'],
@@ -27,6 +28,7 @@ class WorkflowOrchestratorService
         'rechazado_financiera' => 'rechazo_financiera',
         'enviado_contabilidad' => 'envio_contabilidad',
         'rechazado_contabilidad' => 'rechazo_contabilidad',
+        'cheque_generado' => 'generacion_cheque',
         'enviado_presupuesto' => 'envio_presupuesto',
         'rechazado_presupuesto' => 'rechazo_presupuesto',
         'enviado_financiera_cheque' => 'revision_financiera_cheque',
@@ -61,6 +63,10 @@ class WorkflowOrchestratorService
         }
 
         if ($role === 'Contabilidad' && $estadoActual === 'enviado_contabilidad') {
+            $estados[] = ['value' => 'cheque_generado', 'label' => 'Generar Cheque'];
+        }
+
+        if ($role === 'Contabilidad' && $estadoActual === 'cheque_generado') {
             $estados[] = ['value' => 'enviado_presupuesto', 'label' => 'Enviar a Presupuesto'];
         }
 

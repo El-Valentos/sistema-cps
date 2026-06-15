@@ -110,7 +110,7 @@
                             @php $c=['emitido'=>'yellow','impreso'=>'blue','entregado'=>'green','anulado'=>'red'][$ch->estado]??'gray'; @endphp
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="px-4 py-3 text-center">
-                                    @if(in_array($ch->estado, ['emitido', 'impreso']))
+                                    @if(in_array($ch->estado, ['emitido', 'impreso']) && in_array($ch->ordenPago->estado, ['cheque_generado', 'rechazado_presupuesto']))
                                     <input type="checkbox" name="cheques[]" value="{{ $ch->id }}" class="w-4 h-4 text-primary-800 rounded focus:ring-primary-500 checkbox-cheque">
                                     @endif
                                 </td>

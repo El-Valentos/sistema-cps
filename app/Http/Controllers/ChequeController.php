@@ -93,14 +93,14 @@ class ChequeController extends Controller
                 'observaciones' => $request->observaciones
             ]);
 
-            $ordenPago->update(['estado' => 'enviado_presupuesto']);
+            $ordenPago->update(['estado' => 'cheque_generado']);
 
             $this->trackingService->registrarEvento(
                 $ordenPago,
                 'generacion_cheque',
                 'enviado_contabilidad',
-                'enviado_presupuesto',
-                "Cheque generado (N° pendiente) y enviado a Presupuesto",
+                'cheque_generado',
+                "Cheque generado (N° pendiente)",
                 ['cheque_id' => $cheque->id]
             );
 
@@ -164,7 +164,7 @@ class ChequeController extends Controller
             $this->trackingService->registrarEvento(
                 $ordenPago,
                 'confirmacion',
-                'emitido',
+                'cheque_generado',
                 'enviado_presupuesto',
                 "Cheque N° {$cheque->numero_cheque} confirmado y enviado a Presupuesto",
                 ['cheque_id' => $cheque->id]
@@ -217,7 +217,7 @@ class ChequeController extends Controller
                 $this->trackingService->registrarEvento(
                     $ordenPago,
                     'confirmacion',
-                    'emitido',
+                    'cheque_generado',
                     'enviado_presupuesto',
                     "Cheque N° {$cheque->numero_cheque} confirmado masivamente y enviado a Presupuesto",
                     ['cheque_id' => $cheque->id]

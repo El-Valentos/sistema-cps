@@ -1,0 +1,80 @@
+classDiagram
+    class Area {
+        +id: int
+        +nombre: string
+        +codigo: string
+        +activo: bool
+    }
+
+    class User {
+        +id: int
+        +name: string
+        +email: string
+        +activo: bool
+        +area_id: int
+    }
+
+    class Beneficiario {
+        +id: int
+        +nombre_razon_social: string
+        +ci_nit: string
+        +banco: string
+        +numero_cuenta: string
+    }
+
+    class CategoriaGasto {
+        +id: int
+        +nombre: string
+        +partida_presupuestaria: string
+    }
+
+    class OrdenPago {
+        +id: int
+        +numero_orden: string
+        +monto_total: decimal
+        +neto_pagar: decimal
+        +estado: string
+        +beneficiario_id: int
+        +categoria_gasto_id: int
+        +creado_por: int
+        +liquidador_id: int
+    }
+
+    class Cheque {
+        +id: int
+        +numero_cheque: string
+        +monto: decimal
+        +banco: string
+        +estado: string
+        +orden_pago_id: int
+        +emitido_por: int
+    }
+
+    class TrackingHistorial {
+        +id: int
+        +accion: string
+        +estado_anterior: string
+        +estado_nuevo: string
+        +orden_pago_id: int
+        +usuario_id: int
+    }
+
+    class DocumentoAdjunto {
+        +id: int
+        +nombre_archivo: string
+        +ruta_archivo: string
+        +orden_pago_id: int
+    }
+
+    Area "1" --> "N" User : pertenece
+    User "1" --> "N" OrdenPago : crea
+    User "1" --> "N" OrdenPago : liquida
+    User "1" --> "N" OrdenPago : aprueba
+    User "1" --> "N" Cheque : emite
+    User "1" --> "N" TrackingHistorial : registra
+    Beneficiario "1" --> "N" OrdenPago : recibe
+    CategoriaGasto "1" --> "N" OrdenPago : clasifica
+    OrdenPago "1" --> "1" Cheque : genera
+    OrdenPago "1" --> "N" TrackingHistorial : trackea
+    OrdenPago "1" --> "N" DocumentoAdjunto : adjunta
+    OrdenPago "1" --> "N" OrdenPago : liquidador_id

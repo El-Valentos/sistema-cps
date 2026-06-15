@@ -1,0 +1,33 @@
+stateDiagram-v2
+    direction LR
+    state "Pendiente\nTesoreria" as PT
+    state "En\nFinanciera" as EF
+    state "En\nContabilidad" as EC
+    state "En\nArchivos" as EA
+    state "En\nPresupuesto" as EP
+    state "Cheque\nEmitido" as CE
+    state "En\nAdministracion" as EAD
+    state "En\nCaja" as ECJ
+    state "Entregado" as ENT
+    state "Cerrado" as CER
+    state "Rechazado" as REC
+    state "Devuelto a\nTesoreria" as DEV
+    state "Anulado" as ANU
+
+    [*] --> PT
+    PT --> EF : Tesoreria\naprueba
+    EF --> EC : Financiera\naprueba
+    EC --> EA : Contabilidad\nenvia
+    EA --> EP : Archivos\narchiva
+    EP --> CE : Presupuesto\naprueba
+    CE --> EAD : Financiera\nemite cheque
+    EAD --> ECJ : Administracion\naprueba
+    ECJ --> ENT : Caja\nentrega
+    ENT --> CER : Cierre
+    PT --> REC : Rechazado
+    EF --> REC : Rechazado
+    EC --> DEV : Devuelto por\nContabilidad
+    EP --> REC : Rechazado
+    EAD --> REC : Rechazado
+    CE --> ANU : Anulado
+    ECJ --> EC : Revalidado\npor Caja

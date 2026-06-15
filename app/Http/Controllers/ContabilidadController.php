@@ -48,7 +48,7 @@ class ContabilidadController extends Controller
             ]);
 
             $ordenPago->update([
-                'estado' => 'enviado_presupuesto',
+                'estado' => 'cheque_generado',
                 'aprobado_por' => auth()->id(),
                 'fecha_aprobacion' => now(),
             ]);
@@ -57,7 +57,7 @@ class ContabilidadController extends Controller
                 $ordenPago,
                 'aprobacion_contabilidad',
                 'enviado_contabilidad',
-                'enviado_presupuesto',
+                'cheque_generado',
                 'Orden aprobada por Contabilidad. Cheque generado (N° pendiente)'
             );
 
@@ -289,7 +289,7 @@ class ContabilidadController extends Controller
                 ]);
 
                 $ordenPago->update([
-                    'estado' => 'enviado_presupuesto',
+                    'estado' => 'cheque_generado',
                     'aprobado_por' => auth()->id(),
                     'fecha_aprobacion' => now(),
                 ]);
@@ -298,7 +298,7 @@ class ContabilidadController extends Controller
                     $ordenPago,
                     'aprobacion_contabilidad',
                     'enviado_contabilidad',
-                    'enviado_presupuesto',
+                    'cheque_generado',
                     "Orden aprobada masivamente por Contabilidad"
                 );
 

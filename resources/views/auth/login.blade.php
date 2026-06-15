@@ -35,13 +35,10 @@
                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm">
         </div>
 
-        <div class="flex items-center justify-between">
-            <label class="flex items-center gap-2 text-sm text-gray-600">
-                <input type="checkbox" name="remember" class="rounded border-gray-300 text-primary-700">
-                Recordarme
-            </label>
-            <a href="{{ route('password.request') }}" class="text-sm text-primary-700 hover:underline">¿Olvidó su contraseña?</a>
-        </div>
+        <label class="flex items-center gap-2 text-sm text-gray-600">
+            <input type="checkbox" name="remember" class="rounded border-gray-300 text-primary-700">
+            Recordarme
+        </label>
 
         <button type="submit" class="w-full bg-primary-900 hover:bg-primary-950 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors">
             <i class="fas fa-sign-in-alt mr-2"></i>Ingresar al Sistema

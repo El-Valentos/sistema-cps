@@ -110,7 +110,7 @@
                             @php $c=['emitido'=>'yellow','impreso'=>'blue','entregado'=>'green','anulado'=>'red'][$ch->estado]??'gray'; @endphp
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="px-4 py-3 text-center">
-                                    @if($ch->estado === 'emitido')
+                                    @if(in_array($ch->estado, ['emitido', 'impreso']))
                                     <input type="checkbox" name="cheques[]" value="{{ $ch->id }}" class="w-4 h-4 text-primary-800 rounded focus:ring-primary-500 checkbox-cheque">
                                     @endif
                                 </td>
@@ -166,6 +166,10 @@
         document.getElementById('btn-imprimir-cheques').addEventListener('click', function() {
             const checked = document.querySelectorAll('.checkbox-cheque:checked');
             if (checked.length === 0) return;
+            if (checked.length > 4) {
+                alert('Solo se pueden imprimir máximo 4 cheques a la vez');
+                return;
+            }
             const ids = Array.from(checked).map(cb => cb.value).join(',');
             const url = '{{ route("cheques.imprimir-seleccionados") }}?ids=' + ids;
             window.open(url, '_blank');

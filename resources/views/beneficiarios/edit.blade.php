@@ -44,6 +44,7 @@
                 </div>
                 <div>
                     <label class="flex items-center gap-2 text-sm font-medium text-gray-700">
+                        <input type="hidden" name="activo" value="0">
                         <input type="checkbox" name="activo" value="1" {{ $beneficiario->activo ? 'checked' : '' }} class="rounded border-gray-300 text-primary-700">
                         Beneficiario activo
                     </label>

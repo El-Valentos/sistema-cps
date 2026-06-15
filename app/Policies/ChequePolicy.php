@@ -35,7 +35,7 @@ class ChequePolicy
     public function imprimir(User $user, Cheque $cheque)
     {
         $role = $user->roles->first()->name;
-        return in_array($role, ['Contabilidad', 'Super Admin']) && $cheque->estado === 'emitido';
+        return in_array($role, ['Contabilidad', 'Super Admin']);
     }
     
     public function anular(User $user, Cheque $cheque)

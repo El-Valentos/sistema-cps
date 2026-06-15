@@ -106,13 +106,8 @@ class ChequeController extends Controller
 
             DB::commit();
 
-            $report = app(\App\Services\ReporteEnvioService::class)->generar(
-                collect([$cheque]), 'enviado_presupuesto', 'cheque'
-            );
-
             return redirect()->route('cheques.show', $cheque)
-                ->with('warning', 'Cheque generado. Debe asignar un número de cheque antes de imprimir o enviar a Presupuesto.')
-                ->with('download_report', $report);
+                ->with('warning', 'Cheque generado. Debe asignar un número de cheque antes de imprimir o enviar a Presupuesto.');
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -203,7 +198,7 @@ class ChequeController extends Controller
             DB::beginTransaction();
             
             $cheques = Cheque::whereIn('id', $ids)
-                ->where('estado', 'emitido')
+                ->whereIn('estado', ['emitido', 'impreso'])
                 ->get();
             
             foreach ($cheques as $cheque) {
@@ -336,6 +331,10 @@ class ChequeController extends Controller
         
         if (empty($ids)) {
             return back()->with('warning', 'No se seleccionaron cheques para imprimir');
+        }
+
+        if (count($ids) > 4) {
+            return back()->with('error', 'Solo se pueden imprimir máximo 4 cheques a la vez');
         }
 
         $cheques = Cheque::whereIn('id', $ids)

@@ -12,6 +12,10 @@ class Beneficiario extends Model
 
     protected $table = 'beneficiarios';
 
+    protected $attributes = [
+        'activo' => true,
+    ];
+
     protected $fillable = [
         'tipo',                    // persona / empresa
         'nombre_razon_social',

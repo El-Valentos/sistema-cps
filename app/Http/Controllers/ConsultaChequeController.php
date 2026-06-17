@@ -14,11 +14,13 @@ class ConsultaChequeController extends Controller
 
     public function buscar(Request $request)
     {
+        $request->merge(['valor_busqueda' => trim($request->valor_busqueda)]);
+
         $request->validate([
-            'valor_busqueda' => 'required|string|max:100',
+            'valor_busqueda' => 'required|string|max:100|min:1',
         ]);
 
-        $valorBusqueda = trim($request->valor_busqueda);
+        $valorBusqueda = $request->valor_busqueda;
 
         $query = Cheque::with('ordenPago.beneficiario');
 
@@ -34,7 +36,7 @@ class ConsultaChequeController extends Controller
                    });
             });
             $q->whereNotIn('estado', [
-                'entregado', 'cerrado', 'entregado_contabilidad', 'archivado', 'anulado'
+                'anulado',
             ]);
         });
 
@@ -64,6 +66,15 @@ class ConsultaChequeController extends Controller
 
         if ($opEstado === 'en_caja') {
             return ['key' => 'listo', 'label' => 'Listo para Entrega', 'color' => 'blue'];
+        }
+
+        $postEntrega = [
+            'entregado', 'entregado_contabilidad', 'enviado_archivos',
+            'archivado', 'cerrado', 'cobrado', 'revalidado', 'revalidando',
+        ];
+
+        if (in_array($opEstado, $postEntrega)) {
+            return ['key' => 'entregado', 'label' => 'Entregado', 'color' => 'green'];
         }
 
         if (in_array($opEstado, $rechazados)) {

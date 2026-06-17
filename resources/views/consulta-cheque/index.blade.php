@@ -105,6 +105,7 @@
                                 };
                                 $icon = match($estadoCliente['key']) {
                                     'listo' => 'fa-check-circle',
+                                    'entregado' => 'fa-check-circle',
                                     'rechazado' => 'fa-times-circle',
                                     default => 'fa-clock',
                                 };
@@ -131,7 +132,7 @@
                                     <div>
                                         <p class="text-gray-500 text-xs">Beneficiario</p>
                                         <p class="font-semibold text-gray-800 truncate">
-                                            {{ $orden?->beneficiario_nombre ?? '-' }} {{ $orden?->beneficiario_apellidos ?? '' }}
+                                            {{ trim(($orden?->beneficiario_nombre ?? '') . ' ' . ($orden?->beneficiario_apellidos ?? '')) ?: '-' }}
                                         </p>
                                     </div>
                                     <div>

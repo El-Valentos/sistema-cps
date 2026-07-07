@@ -84,7 +84,7 @@
                             </p>
                         </div>
                         <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">
-                            {{ $resultados->count() }} {{ $resultados->count() === 1 ? 'cheque encontrado' : 'cheques encontrados' }}
+                            {{ $resultados->count() }} {{ $resultados->count() === 1 ? 'resultado encontrado' : 'resultados encontrados' }}
                         </span>
                     </div>
 
@@ -94,7 +94,7 @@
                             @php
                                 $cheque = $resultado['cheque'];
                                 $estadoCliente = $resultado['estadoCliente'];
-                                $orden = $cheque->ordenPago;
+                                $orden = $resultado['orden'];
                                 
                                 $badge = match($estadoCliente['color']) {
                                     'blue' => 'bg-blue-100 text-blue-700',
@@ -119,7 +119,7 @@
                                         </div>
                                         <div>
                                             <p class="text-xs text-gray-500">N° de Cheque</p>
-                                            <p class="font-bold text-gray-800">{{ $cheque->numero_cheque ?? 'Pendiente' }}</p>
+                                            <p class="font-bold text-gray-800">{{ $cheque?->numero_cheque ?? 'Pendiente' }}</p>
                                         </div>
                                     </div>
                                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold {{ $badge }}">
@@ -141,7 +141,7 @@
                                     </div>
                                     <div>
                                         <p class="text-gray-500 text-xs">Fecha de Emisión</p>
-                                        <p class="font-semibold text-gray-800">{{ $cheque->fecha_emision?->format('d/m/Y') ?? '-' }}</p>
+                                        <p class="font-semibold text-gray-800">{{ $cheque?->fecha_emision?->format('d/m/Y') ?? '-' }}</p>
                                     </div>
                                 </div>
                             </div>

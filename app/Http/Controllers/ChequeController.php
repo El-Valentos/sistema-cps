@@ -356,6 +356,38 @@ class ChequeController extends Controller
         return $pdf->stream("Cheques_seleccionados.pdf");
     }
 
+    public function rechazarCreacion(Request $request)
+    {
+        $request->validate([
+            'orden_pago_id' => 'required|exists:ordenes_pago,id',
+            'motivo_rechazo' => 'required|string|min:10',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $ordenPago = OrdenPago::findOrFail($request->orden_pago_id);
+            $ordenPago->update(['estado' => 'enviado_financiera']);
+
+            $this->trackingService->registrarEvento(
+                $ordenPago,
+                'rechazo_cheque',
+                'enviado_contabilidad',
+                'enviado_financiera',
+                "Creación de cheque rechazada. Motivo: {$request->motivo_rechazo}"
+            );
+
+            DB::commit();
+
+            return redirect()->route('financiera.index')
+                ->with('success', 'Creación de cheque rechazada. Orden devuelta a Financiera para correcciones.');
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->with('error', 'Error al rechazar la creación del cheque: ' . $e->getMessage());
+        }
+    }
+
     public function anular(Cheque $cheque, Request $request)
     {
         $this->authorize('anular', $cheque);

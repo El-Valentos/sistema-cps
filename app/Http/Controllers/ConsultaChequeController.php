@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Cheque;
+use App\Models\OrdenPago;
 use Illuminate\Http\Request;
 
 class ConsultaChequeController extends Controller
@@ -22,49 +22,44 @@ class ConsultaChequeController extends Controller
 
         $valorBusqueda = $request->valor_busqueda;
 
-        $query = Cheque::with('ordenPago.beneficiario');
-
-        $query->whereHas('ordenPago', function ($q) use ($valorBusqueda) {
-            $q->where(function ($q2) use ($valorBusqueda) {
-                $q2->where('beneficiario_nombre', 'LIKE', '%' . $valorBusqueda . '%')
+        $ordenes = OrdenPago::with('cheque', 'beneficiario')
+            ->where(function ($q) use ($valorBusqueda) {
+                $q->where('beneficiario_nombre', 'LIKE', '%' . $valorBusqueda . '%')
                    ->orWhere('beneficiario_apellidos', 'LIKE', '%' . $valorBusqueda . '%')
                    ->orWhere('beneficiario_ci_nit', 'LIKE', '%' . $valorBusqueda . '%')
-                   ->orWhereHas('beneficiario', function ($q3) use ($valorBusqueda) {
-                       $q3->where('nombre_razon_social', 'LIKE', '%' . $valorBusqueda . '%')
+                   ->orWhereHas('beneficiario', function ($q2) use ($valorBusqueda) {
+                       $q2->where('nombre_razon_social', 'LIKE', '%' . $valorBusqueda . '%')
                           ->orWhere('apellidos', 'LIKE', '%' . $valorBusqueda . '%')
                           ->orWhere('ci_nit', 'LIKE', '%' . $valorBusqueda . '%');
                    });
-            });
-            $q->whereNotIn('estado', [
-                'anulado',
-            ]);
-        });
+            })
+            ->whereNotIn('estado', ['anulado'])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        $cheques = $query->orderBy('fecha_emision', 'desc')->get();
-
-        if ($cheques->isEmpty()) {
+        if ($ordenes->isEmpty()) {
             return back()
-                ->with('error', 'No se encontraron cheques con el dato ingresado.')
+                ->with('error', 'No se encontraron resultados con el dato ingresado.')
                 ->withInput();
         }
 
-        $resultados = $cheques->map(function ($cheque) {
+        $resultados = $ordenes->map(function ($orden) {
+            $cheque = $orden->cheque;
             return [
+                'orden' => $orden,
                 'cheque' => $cheque,
-                'estadoCliente' => $this->determinarEstadoCliente($cheque),
+                'estadoCliente' => $this->determinarEstadoCliente($orden->estado),
             ];
         });
 
         return view('consulta-cheque.index', compact('resultados', 'valorBusqueda'));
     }
 
-    private function determinarEstadoCliente($cheque)
+    private function determinarEstadoCliente(string $estado): array
     {
-        $opEstado = $cheque->ordenPago?->estado;
-
         $rechazados = ['rechazado_financiera', 'rechazado_contabilidad', 'rechazado_presupuesto', 'rechazado_financiera_cheque', 'rechazado_administracion'];
 
-        if ($opEstado === 'en_caja') {
+        if ($estado === 'en_caja') {
             return ['key' => 'listo', 'label' => 'Listo para Entrega', 'color' => 'blue'];
         }
 
@@ -73,11 +68,11 @@ class ConsultaChequeController extends Controller
             'archivado', 'cerrado', 'cobrado', 'revalidado', 'revalidando',
         ];
 
-        if (in_array($opEstado, $postEntrega)) {
+        if (in_array($estado, $postEntrega)) {
             return ['key' => 'entregado', 'label' => 'Entregado', 'color' => 'green'];
         }
 
-        if (in_array($opEstado, $rechazados)) {
+        if (in_array($estado, $rechazados)) {
             return ['key' => 'rechazado', 'label' => 'Rechazado', 'color' => 'red'];
         }
 

@@ -97,6 +97,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/{cheque}/numero', [ChequeController::class, 'asignarNumero'])->name('asignar-numero');
         Route::post('/{cheque}/confirmar', [ChequeController::class, 'confirmar'])->name('confirmar');
         Route::post('/enviar-masivo', [ChequeController::class, 'enviarMasivo'])->name('enviar-masivo');
+        Route::post('/rechazar-creacion', [ChequeController::class, 'rechazarCreacion'])->name('rechazar-creacion');
         Route::get('/{cheque}/imprimir', [ChequeController::class, 'imprimir'])->name('imprimir');
         Route::get('/{cheque}/pdf', [ChequeController::class, 'generarPDF'])->name('pdf');
         Route::post('/{cheque}/anular', [ChequeController::class, 'anular'])->name('anular');

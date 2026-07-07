@@ -162,7 +162,7 @@
                                 <i class="fas fa-save mr-2"></i>Generar Cheque
                             </button>
                             
-                            @if($ordenPreseleccionada && auth()->user()->hasRole('Contabilidad'))
+                            @if($ordenPreseleccionada && auth()->user()->hasAnyRole(['Contabilidad', 'Super Admin']))
                             <button type="button" onclick="abrirModalRechazo()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors">
                                 <i class="fas fa-times mr-2"></i>Rechazar Orden
                             </button>
@@ -184,8 +184,9 @@
         <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
             <div class="mt-3">
                 <h3 class="text-lg font-medium text-gray-900 text-center">Motivo de Rechazo</h3>
-                <form action="{{ route('contabilidad.rechazar', $ordenPreseleccionada) }}" method="POST" class="mt-4">
+                <form action="{{ route('cheques.rechazar-creacion') }}" method="POST" class="mt-4">
                     @csrf
+                    <input type="hidden" name="orden_pago_id" value="{{ $ordenPreseleccionada->id }}">
                     <textarea name="motivo_rechazo" rows="4" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 outline-none" required placeholder="Explique el motivo del rechazo..."></textarea>
                     <div class="flex justify-end gap-2 mt-4">
                         <button type="button" onclick="cerrarModalRechazo()" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">Cancelar</button>
